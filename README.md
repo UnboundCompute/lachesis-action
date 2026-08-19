@@ -28,6 +28,28 @@ ranks as an `error`:
 <!-- Render demo/demo.tape with `vhs demo/demo.tape` and commit demo/demo.gif, then: -->
 <!-- ![demo](./demo/demo.gif) -->
 
+## See it find the bug
+
+Three commands: build the graph, ask for the overview, then look at the handler
+that forgot the check.
+
+```console
+$ lachesis-analyze ./project graph.kuzu --prune --incremental
+   building code graph... done
+
+$ lachesis-query graph.kuzu overview --format text | grep -i 'guard differential'
+Guard differentials: 1
+
+$ lachesis-query graph.kuzu handler-security getDocument --format text
+handler: getDocument
+status: UNGUARDED
+differential_siblings: ["getInvoice"]
+  getInvoice guards the identical sink; getDocument does not.
+```
+
+The Action runs exactly this on every PR and reports the `UNGUARDED` sibling into
+code scanning as an `error`.
+
 ## Quickstart
 
 Add `.github/workflows/lachesis.yml` to your repo:
