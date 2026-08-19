@@ -26,7 +26,7 @@ ranks as an `error`:
 > function guards the identical sink.**
 
 <!-- Render demo/demo.tape with `vhs demo/demo.tape` and commit demo/demo.gif, then: -->
-![demo](./demo/demo.gif)
+<!-- ![demo](./demo/demo.gif) -->
 
 ## See it find the bug
 
