@@ -1,0 +1,22 @@
+# Copy this into a consuming repo as .github/workflows/lachesis.yml
+name: lachesis
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # required to upload SARIF to code scanning
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: UnboundCompute/lachesis-action@v1
+        with:
+          source: "."
+          # exclude: "test/fixtures vendor"   # drop findings under these paths/globs
+          # fail-on: "error"                   # fail the PR on guard differentials
+          # lachesis-ref: "v1.0.0"             # pin the engine for reproducibility
