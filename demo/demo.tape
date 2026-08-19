@@ -1,4 +1,4 @@
-# Lachesis demo — render with charmbracelet/vhs:
+# Lachesis demo, render with charmbracelet/vhs:
 #   brew install vhs        # or: go install github.com/charmbracelet/vhs@latest
 #   vhs demo/demo.tape      # writes demo/demo.gif
 #
@@ -26,7 +26,7 @@ Type "lachesis-analyze ./project graph.kuzu --prune --incremental"
 Enter
 Sleep 2s
 
-Type "# 2. Overview — one guard differential surfaced"
+Type "# 2. Overview: one guard differential surfaced"
 Enter
 Sleep 500ms
 Type "lachesis-query graph.kuzu overview --format text | grep -i 'guard differential'"

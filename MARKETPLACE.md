@@ -8,9 +8,9 @@ and a `branding` block, and the `README.md` becomes the listing body.
 1. Cut a release tag (see below), then on GitHub open **Releases → Draft a new
    release**. Select the tag.
 2. Check **"Publish this Action to the GitHub Marketplace."** (Requires 2FA on the
-   account — enable it first if prompted.)
+   account, enable it first if prompted.)
 3. Accept the Marketplace agreement.
-4. **Categories** — pick:
+4. **Categories**, pick:
    - Primary: **Security**
    - Secondary: **Code quality**
 5. Publish the release. The listing goes live at
@@ -37,7 +37,7 @@ Consumers then use `UnboundCompute/lachesis-action@v1`.
 
 - **Name:** Lachesis Security Scan
 - **Tagline (≤125 chars):** Trace untrusted input to sinks and catch the endpoint
-  that forgot the authorization check — inline in GitHub code scanning.
+  that forgot the authorization check, inline in GitHub code scanning.
 - **Description:** see `README.md` (rendered as the listing body).
 
 ## Discoverability checklist

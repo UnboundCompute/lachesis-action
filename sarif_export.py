@@ -149,7 +149,7 @@ def build_result(
         # rather than emit an invalid "<unknown>" location.
         return None
 
-    msg = f"Tainted flow reaches `{sinks}` in `{handler}` — {(guard.get('status') or 'REACHABLE')}. Flow: {label}."
+    msg = f"Tainted flow reaches `{sinks}` in `{handler}`: {(guard.get('status') or 'REACHABLE')}. Flow: {label}."
     if siblings:
         msg += f" Sibling `{siblings}` guards the same sink (guard differential)."
     confidence = guard.get("confidence")
@@ -283,7 +283,7 @@ def is_excluded(uri: str, patterns: Optional[List[str]]) -> bool:
 
     A bare directory (``a/b/fixtures``) drops everything beneath it; a glob
     (``**/fixtures/**``, ``*.min.js``) is matched with fnmatch. This is a report
-    filter — the excluded code is still analyzed, its findings just aren't emitted.
+    filter: the excluded code is still analyzed, its findings just aren't emitted.
     """
     if not patterns:
         return False

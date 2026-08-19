@@ -1,5 +1,5 @@
 name: "Lachesis Security Scan"
-description: "Trace untrusted input to sinks and catch the endpoint that forgot the authorization check — inline in GitHub code scanning."
+description: "Trace untrusted input to sinks and catch the endpoint that forgot the authorization check, inline in GitHub code scanning."
 branding:
   icon: "git-branch"
   color: "purple"
@@ -50,7 +50,7 @@ runs:
     - name: Install Lachesis (from source)
       # Until lachesis-cpg is on PyPI, install from GitHub. The TypeScript compiler
       # is a build artifact absent from the repo, so vendor it FIRST (a pure-Python
-      # fetch, no npm) — then it gets packaged into the install.
+      # fetch, no npm), then it gets packaged into the install.
       shell: bash
       run: |
         SRC="$RUNNER_TEMP/lachesis-src"
