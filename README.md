@@ -102,6 +102,7 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `exclude` | `` | Drop findings under these paths/globs (e.g. a `fixtures` or `vendor` dir). |
 | `changed-files` | `` | If set, only report findings in these files. |
 | `analyze-args` | `--prune --incremental` | Flags for the graph build. |
+| `c-jobs` | empty (adaptive) | Optional Clang frontend concurrency override; use `1` to cap memory or `2` for a measured medium-tree runner. |
 | `lachesis-ref` | `main` | Branch/tag/SHA of the Lachesis engine to install. Pin for reproducibility. |
 | `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. |
 | `upload` | `true` | Upload SARIF to code scanning. |

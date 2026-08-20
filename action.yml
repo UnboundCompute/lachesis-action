@@ -17,6 +17,9 @@ inputs:
   analyze-args:
     description: "Extra flags passed to lachesis-analyze. Kept light by default."
     default: "--prune --incremental"
+  c-jobs:
+    description: "Optional Clang frontend concurrency override; empty uses the adaptive engine default."
+    default: ""
   kuzu-buffer-pool-size:
     description: "Kùzu buffer pool ceiling in bytes for graph materialization."
     default: "1073741824"
@@ -95,6 +98,7 @@ runs:
         # Keep the Action's cold build from auto-sizing Kùzu to the whole runner.
         # Users with larger subsystems can raise this explicitly.
         LACHESIS_KUZU_BUFFER_POOL_SIZE: ${{ inputs.kuzu-buffer-pool-size }}
+        LACHESIS_C_JOBS: ${{ inputs.c-jobs }}
       run: |
         lachesis-analyze "${{ inputs.source }}" "$RUNNER_TEMP/lachesis.kuzu" ${{ inputs.analyze-args }}
 
