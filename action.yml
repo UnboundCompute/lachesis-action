@@ -17,6 +17,9 @@ inputs:
   analyze-args:
     description: "Extra flags passed to lachesis-analyze. Kept light by default."
     default: "--prune --incremental"
+  kuzu-buffer-pool-size:
+    description: "Kùzu buffer pool ceiling in bytes for graph materialization."
+    default: "1073741824"
   sarif-file:
     description: "Where to write the SARIF report."
     default: "lachesis.sarif"
@@ -88,6 +91,10 @@ runs:
 
     - name: Build graph
       shell: bash
+      env:
+        # Keep the Action's cold build from auto-sizing Kùzu to the whole runner.
+        # Users with larger subsystems can raise this explicitly.
+        LACHESIS_KUZU_BUFFER_POOL_SIZE: ${{ inputs.kuzu-buffer-pool-size }}
       run: |
         lachesis-analyze "${{ inputs.source }}" "$RUNNER_TEMP/lachesis.kuzu" ${{ inputs.analyze-args }}
 
