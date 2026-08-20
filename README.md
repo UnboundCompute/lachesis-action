@@ -109,7 +109,9 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 ## How it works
 
 1. Installs the [Lachesis engine](https://github.com/UnboundCompute/lachesis) (clones and vendors its TypeScript frontend, pure Python, no `npm`).
-2. Builds a code graph of `source`, a light pruned build; the data-flow tier folds lazily.
+2. Restores the incremental frontend bundles when the source and engine ref match, then
+   builds a light pruned graph; the data-flow tier folds lazily. The cache is only a
+   compile reuse hint: Lachesis still validates file digests and output-affecting flags.
 3. Traces every source-to-sink path, classifies its guard status, and renders SARIF.
 4. Uploads to GitHub code scanning.
 

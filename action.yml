@@ -47,7 +47,21 @@ runs:
       with:
         node-version: "22"
 
+    - name: Fingerprint analyzer toolchain
+      id: toolchain
+      shell: bash
+      run: |
+        {
+          python3 --version
+          node --version
+          (clang --version 2>/dev/null || echo "clang unavailable")
+        } | python3 -c 'import hashlib, sys; print(hashlib.sha256(sys.stdin.buffer.read()).hexdigest())' | {
+          read fingerprint
+          echo "fingerprint=$fingerprint" >> "$GITHUB_OUTPUT"
+        }
+
     - name: Install Lachesis (from source)
+      id: install-lachesis
       # Until lachesis-cpg is on PyPI, install from GitHub. The TypeScript compiler
       # is a build artifact absent from the repo, so vendor it FIRST (a pure-Python
       # fetch, no npm), then it gets packaged into the install.
@@ -57,9 +71,20 @@ runs:
         rm -rf "$SRC"
         git clone "${{ inputs.lachesis-repo }}" "$SRC"           # full clone: ref may be a branch, tag, or SHA
         git -C "$SRC" checkout "${{ inputs.lachesis-ref }}"
+        echo "engine_sha=$(git -C "$SRC" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
         python3 -m pip install --upgrade pip
         python3 "$SRC/tools/vendor_typescript.py"
         python3 -m pip install "$SRC"
+
+    - name: Restore frontend cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          graph_out/frontends
+          ${{ runner.temp }}/lachesis.kuzu
+          ${{ runner.temp }}/lachesis.kuzu.enriched
+        key: lachesis-graph-${{ runner.os }}-${{ steps.toolchain.outputs.fingerprint }}-${{ steps.install-lachesis.outputs.engine_sha }}-${{ hashFiles('**/*.c', '**/*.h', '**/*.cc', '**/*.cpp', '**/*.py', '**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+        save-always: true
 
     - name: Build graph
       shell: bash
