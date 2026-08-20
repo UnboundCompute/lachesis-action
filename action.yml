@@ -93,6 +93,10 @@ runs:
 
     - name: Export SARIF
       shell: bash
+      env:
+        # SARIF is one batch query; do not write a second graph-sized enriched cache
+        # during the cold Action invocation. Local query users keep persistent caching.
+        LACHESIS_QUERY_EPHEMERAL_ENRICH: "1"
       run: |
         ARGS=()
         if [ -n "${{ inputs.changed-files }}" ]; then
