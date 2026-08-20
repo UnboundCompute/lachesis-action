@@ -32,6 +32,7 @@ import argparse
 import fnmatch
 import json
 import os
+import shlex
 import subprocess
 import sys
 from typing import Any, Dict, List, Optional
@@ -299,8 +300,9 @@ def main() -> int:
     ap.add_argument("-o", "--output", default="-", help="SARIF output file (default: stdout)")
     ap.add_argument("--repo-root", default=os.environ.get("GITHUB_WORKSPACE") or os.getcwd(),
                     help="root the SARIF uris are relative to (default: $GITHUB_WORKSPACE or cwd)")
-    ap.add_argument("--query-cmd", default="python3 -m lachesis.cli.query",
-                    help="how to invoke the query CLI (default: 'python3 -m lachesis.cli.query')")
+    default_query = shlex.join([sys.executable, "-m", "lachesis.cli.query"])
+    ap.add_argument("--query-cmd", default=default_query,
+                    help=f"how to invoke the query CLI (default: {default_query!r})")
     ap.add_argument("--changed-files", action="append",
                     help="only report findings in these files (repeatable / comma-separated)")
     ap.add_argument("--changed-from-file", help="read the changed-file list from this path")
@@ -309,7 +311,7 @@ def main() -> int:
                          "vendor dir (repeatable / comma-separated)")
     args = ap.parse_args()
 
-    query_cmd = args.query_cmd.split()
+    query_cmd = shlex.split(args.query_cmd)
     changed = load_changed(args)
     excluded = load_excluded(args)
     sarif = build_sarif(args.graph, query_cmd, args.repo_root, changed, excluded)
