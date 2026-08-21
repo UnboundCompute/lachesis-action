@@ -8,6 +8,9 @@ inputs:
   source:
     description: "Directory to analyze, relative to the repo root."
     default: "."
+  python-version:
+    description: "Python runtime for the analyzer. Keep the default on the tested compatibility floor."
+    default: "3.11"
   lachesis-repo:
     description: "Git URL to install Lachesis from (until the wheel is on PyPI)."
     default: "https://github.com/UnboundCompute/lachesis"
@@ -51,7 +54,7 @@ runs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.x"
+        python-version: ${{ inputs.python-version }}
 
     - name: Set up Node
       # Needed at analyze time: the TypeScript frontend runs under node.

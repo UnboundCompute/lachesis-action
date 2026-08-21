@@ -4,6 +4,10 @@ The Action is a composite action and is released independently from the Lachesis
 engine. Keep the Action tag stable while engine versions advance through the
 `lachesis-ref` input.
 
+The default runtime is Python 3.11 because it is covered by the engine and Action
+test matrix. If changing `python-version`, verify the Kùzu wheel and full Action
+workflow on that interpreter before publishing a tag.
+
 ## Verification
 
 Run the dependency-free SARIF tests:

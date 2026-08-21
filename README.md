@@ -98,6 +98,7 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | Input | Default | Notes |
 |---|---|---|
 | `source` | `.` | Directory to analyze. |
+| `python-version` | `3.11` | Python runtime for the engine. Override only with a version tested against the Lachesis/Kùzu dependency set. |
 | `kuzu-buffer-pool-size` | `1073741824` | Kùzu buffer-pool ceiling in bytes. Raise it for very large trees; lower it on constrained runners. |
 | `exclude` | `` | Drop findings under these paths/globs (e.g. a `fixtures` or `vendor` dir). |
 | `changed-files` | `` | If set, only report findings in these files. |
