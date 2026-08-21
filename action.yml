@@ -29,6 +29,9 @@ inputs:
   c-jobs:
     description: "Optional Clang frontend concurrency override; empty uses the adaptive engine default."
     default: ""
+  frontend-timeout:
+    description: "Maximum seconds for one Lachesis frontend invocation."
+    default: "300"
   kuzu-buffer-pool-size:
     description: "Kùzu buffer pool ceiling in bytes for graph materialization."
     default: "1073741824"
@@ -63,6 +66,7 @@ runs:
         LACHESIS_SOURCE: ${{ inputs.source }}
         LACHESIS_REF: ${{ inputs.lachesis-ref }}
         ATROPOS_REF: ${{ inputs.atropos-ref }}
+        LACHESIS_FRONTEND_TIMEOUT: ${{ inputs.frontend-timeout }}
       run: python3 "$GITHUB_ACTION_PATH/validate_inputs.py"
 
     - name: Set up Python
@@ -168,6 +172,7 @@ runs:
         LACHESIS_C_JOBS: ${{ inputs.c-jobs }}
         LACHESIS_SOURCE: ${{ inputs.source }}
         LACHESIS_ANALYZE_ARGS: ${{ inputs.analyze-args }}
+        LACHESIS_FRONTEND_TIMEOUT: ${{ inputs.frontend-timeout }}
       run: |
         # Preserve shell-style quoting in the documented flag string without
         # evaluating it as shell code.
@@ -182,6 +187,8 @@ runs:
             os.path.join(os.environ["RUNNER_TEMP"], "lachesis.kuzu"),
             *shlex.split(os.environ["LACHESIS_ANALYZE_ARGS"]),
         ]
+        if not any(arg == "--timeout" or arg.startswith("--timeout=") for arg in args):
+            args.extend(("--timeout", os.environ["LACHESIS_FRONTEND_TIMEOUT"]))
         subprocess.run(args, check=True)
         PY
 

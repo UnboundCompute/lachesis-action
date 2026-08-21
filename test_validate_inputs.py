@@ -68,6 +68,14 @@ class ValidateInputsTests(unittest.TestCase):
         self.assertEqual(2, len(errors))
         self.assertTrue(all("single Git ref" in error for error in errors))
 
+    def test_rejects_invalid_frontend_timeout(self):
+        errors = validate(
+            upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",
+            analyze_args="", sarif_file="report.sarif", source=".",
+            frontend_timeout="0",
+        )
+        self.assertIn("frontend-timeout must be a positive integer", errors)
+
 
 if __name__ == "__main__":
     unittest.main()

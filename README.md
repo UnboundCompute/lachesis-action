@@ -108,6 +108,7 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `changed-files` | `` | If set, only report findings in these files. |
 | `analyze-args` | `--prune --incremental` | Flags for the graph build. |
 | `c-jobs` | empty (adaptive) | Optional Clang frontend concurrency override; use `1` to cap memory or `2` for a measured medium-tree runner. |
+| `frontend-timeout` | `300` | Maximum seconds for one Lachesis frontend invocation. |
 | `lachesis-ref` | `main` | Branch/tag/SHA of the Lachesis engine to install. Pin for reproducibility. |
 | `atropos-repo` | `https://github.com/UnboundCompute/atropos` | Atropos catalog repository to load. |
 | `atropos-ref` | `main` | Branch/tag/SHA of Atropos. Pin a tag or commit for reproducible findings. |

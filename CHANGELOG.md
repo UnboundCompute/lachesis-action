@@ -10,6 +10,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   network checkouts.
 - Ref validation also rejects option-like or whitespace-containing values before
   they reach Git.
+- Added an explicit `frontend-timeout` input so Action users can bound each
+  analyzer frontend without embedding timeout flags in `analyze-args`.
 - The `fail-on` gate now reports readable errors for missing, malformed, or
   structurally invalid SARIF instead of exposing a Python traceback.
 - Use shallow ref-aware source clones in the composite action to reduce cold-start
