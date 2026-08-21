@@ -8,6 +8,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   it and prevents a major tag from crossing release lines.
 - The local Action gate now checks that `VERSION` and the stable changelog heading stay
   synchronized before a release is tagged.
+- Action runs now warn when engine or catalog refs remain on mutable `main`, while
+  retaining that default for development convenience.
 
 - Reject `analyze-args` values that try to override the Action's `frontend-timeout`,
   keeping the documented execution bound effective for unattended scans.
