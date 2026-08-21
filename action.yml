@@ -218,19 +218,4 @@ runs:
       env:
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
         LACHESIS_FAIL_ON: ${{ inputs.fail-on }}
-      run: |
-        python3 - "$LACHESIS_SARIF_FILE" "$LACHESIS_FAIL_ON" <<'PY'
-        import json, sys
-        order = {"note": 1, "warning": 2, "error": 3}
-        sarif_file, threshold = sys.argv[1], sys.argv[2]
-        if threshold not in order:
-            print(f"lachesis: invalid fail-on value {threshold!r}; expected none, note, warning, or error")
-            sys.exit(2)
-        gate = order[threshold]
-        results = json.load(open(sarif_file))["runs"][0]["results"]
-        hits = [r for r in results if order.get(r.get("level", "warning"), 2) >= gate]
-        if hits:
-            print(f"lachesis: {len(hits)} finding(s) at or above '{threshold}'")
-            sys.exit(1)
-        print(f"lachesis: no findings at or above '{threshold}'")
-        PY
+      run: python3 "$GITHUB_ACTION_PATH/gate_sarif.py" "$LACHESIS_SARIF_FILE" "$LACHESIS_FAIL_ON"

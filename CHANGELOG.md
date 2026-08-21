@@ -4,6 +4,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+- The `fail-on` gate now reports readable errors for missing, malformed, or
+  structurally invalid SARIF instead of exposing a Python traceback.
 - Use shallow ref-aware source clones in the composite action to reduce cold-start
   transfer and checkout cost while retaining branch, tag, and SHA inputs.
 - Pin the Action's own workflows and published usage examples to the v1.0.0
