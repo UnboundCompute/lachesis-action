@@ -21,6 +21,9 @@ verify that the generated SARIF passes GitHub's SARIF upload action. Check both 
 report and a fixture with a guard differential, including `--changed-files` and
 `--exclude` filters.
 
+Every `v*` tag also runs the dependency-free release verification workflow. It checks
+the composite-action metadata and test suite but does not publish or move any tag.
+
 ## Tagging and rollback
 
 Create an annotated `vMAJOR` tag only after the release candidate workflow is green.

@@ -1,0 +1,28 @@
+name: release verification
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify tagged Action
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate metadata and tests
+        run: |
+          python3 -m unittest test_sarif_export.py
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path("action.yml").read_text()
+          assert 'name: "Lachesis Security Scan"' in text
+          assert 'using: composite' in text
+          print("composite Action metadata is valid")
+          PY
