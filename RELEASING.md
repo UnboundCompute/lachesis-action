@@ -8,9 +8,9 @@ Every release must have a matching heading in [`CHANGELOG.md`](CHANGELOG.md). Th
 release workflow accepts either `## [VERSION]` or `## VERSION`, so the existing `v1`
 major tag and future semantic-version tags use the same gate.
 
-The default runtime is Python 3.11 because it is covered by the engine and Action
-test matrix. If changing `python-version`, verify the Kùzu wheel and full Action
-workflow on that interpreter before publishing a tag.
+The default runtime is Python 3.11 because it is the interpreter used by the Action
+gate and the Lachesis release verification job. If changing `python-version`, verify
+the Kùzu wheel and full Action workflow on that interpreter before publishing a tag.
 
 ## Verification
 

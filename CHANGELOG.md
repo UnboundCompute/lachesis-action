@@ -8,6 +8,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   keeping the documented execution bound effective for unattended scans.
 - Bound SARIF graph queries with the configurable `query-timeout` input so a stalled
   query cannot leave an Action step waiting indefinitely.
+- Corrected release guidance to describe the actual Python 3.11 verification jobs,
+  rather than implying the Action itself runs a Python-version matrix.
 
 - Corrected the example workflow so its optional `lachesis-ref` does not suggest
   the Action's `v1.0.0` tag as an engine release; consumers must provide an actual
