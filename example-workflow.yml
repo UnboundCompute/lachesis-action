@@ -20,3 +20,4 @@ jobs:
           # exclude: "test/fixtures vendor"   # drop findings under these paths/globs
           # fail-on: "error"                   # fail the PR on guard differentials
           # lachesis-ref: "v1.0.0"             # pin the engine for reproducibility
+          # atropos-ref: "<immutable-tag-or-sha>" # pin the model catalog too
