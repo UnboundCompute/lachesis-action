@@ -23,6 +23,6 @@ jobs:
           from pathlib import Path
           text = Path("action.yml").read_text()
           assert 'name: "Lachesis Security Scan"' in text
-          assert 'using: composite' in text
+          assert 'using: "composite"' in text
           print("composite Action metadata is valid")
           PY
