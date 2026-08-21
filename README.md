@@ -126,7 +126,7 @@ rollback guidance are in [`RELEASING.md`](./RELEASING.md).
 2. Installs and validates the [Atropos catalog](https://github.com/UnboundCompute/atropos) from a blob-filtered checkout,
    exporting `ATROPOS_ROOT` so model binding is explicit rather than dependent on a
    sibling checkout.
-3. Restores the incremental frontend bundles when the source, engine, and catalog refs match, then
+3. Restores the incremental frontend bundles when the source, lockfiles, engine, and catalog refs match, then
    builds a light pruned graph; the data-flow tier folds lazily. The cache is only a
    compile reuse hint: Lachesis still validates file digests and output-affecting flags.
 4. Traces every source-to-sink path, classifies its guard status, and renders SARIF.

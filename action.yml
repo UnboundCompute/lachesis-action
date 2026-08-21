@@ -118,7 +118,7 @@ runs:
           graph_out/frontends
           ${{ runner.temp }}/lachesis.kuzu
           ${{ runner.temp }}/lachesis.kuzu.enriched
-        key: lachesis-graph-${{ runner.os }}-${{ steps.toolchain.outputs.fingerprint }}-${{ steps.install-lachesis.outputs.engine_sha }}-${{ steps.install-atropos.outputs.catalog_sha }}-${{ hashFiles('**/*.c', '**/*.h', '**/*.cc', '**/*.cpp', '**/*.py', '**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx', '**/tsconfig*.json', '**/package.json', '**/pyproject.toml', '**/lachesis.toml') }}
+        key: lachesis-graph-${{ runner.os }}-${{ steps.toolchain.outputs.fingerprint }}-${{ steps.install-lachesis.outputs.engine_sha }}-${{ steps.install-atropos.outputs.catalog_sha }}-${{ hashFiles('**/*.c', '**/*.h', '**/*.cc', '**/*.cpp', '**/*.py', '**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx', '**/tsconfig*.json', '**/package.json', '**/package-lock.json', '**/npm-shrinkwrap.json', '**/yarn.lock', '**/pnpm-lock.yaml', '**/pyproject.toml', '**/lachesis.toml') }}
 
     - name: Build graph
       shell: bash
