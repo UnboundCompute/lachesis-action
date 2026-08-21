@@ -18,11 +18,11 @@ machine-readable output where a helper participates in an Action protocol.
 
 ## Workflow and release changes
 
-- Keep third-party `uses:` references pinned to reviewed commit SHAs.
+- Keep third-party `uses:` references on reviewed version tags.
 - Add or update tests when changing input validation, SARIF filtering, or exit
   behavior.
 - Keep the Action's `lachesis-ref` and `atropos-ref` inputs explicit; production
-  examples should use immutable engine/catalog tags or SHAs.
+  examples should use reviewed engine/catalog release tags.
 - Update [`CHANGELOG.md`](./CHANGELOG.md) for user-visible behavior.
 
 For a tagged release, follow [`RELEASING.md`](./RELEASING.md) after the local

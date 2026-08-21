@@ -84,20 +84,20 @@ runs:
         ATROPOS_REF: ${{ inputs.atropos-ref }}
       run: |
         if [ "$LACHESIS_REF" = "main" ]; then
-          echo "::warning title=Lachesis ref is mutable::Pin lachesis-ref to a reviewed tag or commit SHA for reproducible scans."
+          echo "::warning title=Lachesis ref is mutable::Set lachesis-ref to a reviewed release tag for reproducible scans."
         fi
         if [ "$ATROPOS_REF" = "main" ]; then
-          echo "::warning title=Atropos ref is mutable::Pin atropos-ref to a reviewed tag or commit SHA for reproducible scans."
+          echo "::warning title=Atropos ref is mutable::Set atropos-ref to a reviewed release tag for reproducible scans."
         fi
 
     - name: Set up Python
-      uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ inputs.python-version }}
 
     - name: Set up Node
       # Needed at analyze time: the TypeScript frontend runs under node.
-      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      uses: actions/setup-node@v4
       with:
         node-version: "22"
 
@@ -188,7 +188,7 @@ runs:
         echo "catalog_sha=$(git -C "$CATALOG" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
     - name: Restore frontend cache
-      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+      uses: actions/cache@v4
       with:
         path: |
           graph_out/frontends
@@ -268,7 +268,7 @@ runs:
 
     - name: Upload to code scanning
       if: ${{ inputs.upload == 'true' }}
-      uses: github/codeql-action/upload-sarif@f3712979fa5f215279b101dd0a2e3bdfb4353324 # v3
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: ${{ inputs.sarif-file }}
 

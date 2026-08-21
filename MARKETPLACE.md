@@ -27,13 +27,11 @@ git tag -f v1 v1.0.0
 git push -f origin v1
 ```
 
-Consumers should use the immutable release commit
-`UnboundCompute/lachesis-action@51d7593825790ab01aa65887b0ad67d2366f306c`
-(the `v1.0.0` release). The moving `v1` major tag remains available for
-consumers who explicitly accept tag movement.
+Consumers should use the reviewed release tag
+`UnboundCompute/lachesis-action@v1` (the `v1.0.0` release).
 
 > Reproducibility note: for a locked release, set the `lachesis-ref` and
-> `atropos-ref` inputs to reviewed immutable tags or SHAs. Pinning the wrapper
+> `atropos-ref` inputs to reviewed release tags. Pinning the wrapper
 > commit alone does not freeze the engine or model catalog it installs.
 
 ## Listing copy (paste-ready)

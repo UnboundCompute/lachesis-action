@@ -73,8 +73,8 @@ jobs:
       contents: read
       security-events: write   # required to upload SARIF to code scanning
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: UnboundCompute/lachesis-action@51d7593825790ab01aa65887b0ad67d2366f306c # v1.0.0
+      - uses: actions/checkout@v4
+      - uses: UnboundCompute/lachesis-action@v1
         with:
           source: "."
 ```
@@ -130,9 +130,10 @@ timeout. Credential prompts and pip's version-check request cannot leave a runne
 
 ## Reproducible production use
 
-Pin `lachesis-ref` to an immutable Lachesis release tag or commit SHA in production
-workflows. The default `main` ref is intended for development and follows engine
-changes. The Action itself is released under its own `v1` tag; release verification and
+Set `lachesis-ref` to a reviewed Lachesis release tag in production workflows. The
+default `main` ref is intended for development and follows engine changes. Set
+`atropos-ref` to a reviewed catalog release tag as well. The Action itself is released
+under its own `v1` tag; release verification and
 rollback guidance are in [`RELEASING.md`](./RELEASING.md).
 
 ## How it works

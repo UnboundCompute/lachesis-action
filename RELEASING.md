@@ -21,7 +21,7 @@ Run the dependency-free Action gate:
 make check
 ```
 
-For a release candidate, run the example workflow against a pinned Lachesis commit and
+For a release candidate, run the example workflow against a reviewed Lachesis release tag and
 verify that the generated SARIF passes GitHub's SARIF upload action. Check both an empty
 report and a fixture with a guard differential, including `--changed-files` and
 `--exclude` filters.
@@ -34,7 +34,7 @@ the composite-action metadata and test suite but does not publish or move any ta
 Create an annotated `vMAJOR` or `vMAJOR.MINOR.PATCH` tag only after the release candidate
 workflow is green. The workflow checks exact semantic tags against `VERSION` and checks
 major tags against its major component.
-Production workflows should pin `lachesis-ref` to an immutable Lachesis tag or SHA;
+Production workflows should set `lachesis-ref` to a reviewed Lachesis release tag;
 the Action's moving default exists for development convenience and must not be used as
 an audit reproducibility boundary. Never overwrite a published tag—cut a patch tag and
 retain the previous tag for rollback.
