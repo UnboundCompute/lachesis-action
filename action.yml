@@ -149,9 +149,21 @@ runs:
         LACHESIS_SOURCE: ${{ inputs.source }}
         LACHESIS_ANALYZE_ARGS: ${{ inputs.analyze-args }}
       run: |
-        # Split only on shell whitespace; never evaluate the input as shell code.
-        read -r -a ANALYZE_ARGS <<< "$LACHESIS_ANALYZE_ARGS"
-        lachesis-analyze "$LACHESIS_SOURCE" "$RUNNER_TEMP/lachesis.kuzu" "${ANALYZE_ARGS[@]}"
+        # Preserve shell-style quoting in the documented flag string without
+        # evaluating it as shell code.
+        python3 - <<'PY'
+        import os
+        import shlex
+        import subprocess
+
+        args = [
+            "lachesis-analyze",
+            os.environ["LACHESIS_SOURCE"],
+            os.path.join(os.environ["RUNNER_TEMP"], "lachesis.kuzu"),
+            *shlex.split(os.environ["LACHESIS_ANALYZE_ARGS"]),
+        ]
+        subprocess.run(args, check=True)
+        PY
 
     - name: Export SARIF
       shell: bash
