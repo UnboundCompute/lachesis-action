@@ -1,7 +1,9 @@
 import importlib.util
 import json
 from pathlib import Path
+import subprocess
 import unittest
+from unittest import mock
 
 
 MODULE = Path(__file__).with_name("sarif_export.py")
@@ -12,6 +14,14 @@ SPEC.loader.exec_module(sarif_export)
 
 
 class SarifExportTests(unittest.TestCase):
+    def test_run_query_has_a_wall_clock_bound(self):
+        with mock.patch.object(
+            sarif_export.subprocess, "run",
+            side_effect=subprocess.TimeoutExpired(["lachesis-query"], 7),
+        ):
+            with self.assertRaises(subprocess.TimeoutExpired):
+                sarif_export.run_query(["lachesis-query"], "graph.kuzu", "overview", timeout=7)
+
     def test_classification_preserves_guard_differential(self):
         self.assertEqual(
             "unguarded-differential",

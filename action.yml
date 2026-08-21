@@ -32,6 +32,9 @@ inputs:
   frontend-timeout:
     description: "Maximum seconds for one Lachesis frontend invocation."
     default: "300"
+  query-timeout:
+    description: "Maximum seconds for one SARIF graph query."
+    default: "300"
   kuzu-buffer-pool-size:
     description: "Kùzu buffer pool ceiling in bytes for graph materialization."
     default: "1073741824"
@@ -67,6 +70,7 @@ runs:
         LACHESIS_REF: ${{ inputs.lachesis-ref }}
         ATROPOS_REF: ${{ inputs.atropos-ref }}
         LACHESIS_FRONTEND_TIMEOUT: ${{ inputs.frontend-timeout }}
+        LACHESIS_QUERY_TIMEOUT: ${{ inputs.query-timeout }}
       run: python3 "$GITHUB_ACTION_PATH/validate_inputs.py"
 
     - name: Set up Python
@@ -203,6 +207,7 @@ runs:
         LACHESIS_CHANGED_FILES: ${{ inputs.changed-files }}
         LACHESIS_EXCLUDE: ${{ inputs.exclude }}
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+        LACHESIS_QUERY_TIMEOUT: ${{ inputs.query-timeout }}
       run: |
         ARGS=()
         if [ -n "$LACHESIS_CHANGED_FILES" ]; then
@@ -214,6 +219,7 @@ runs:
         python3 "$GITHUB_ACTION_PATH/sarif_export.py" \
           "$RUNNER_TEMP/lachesis.kuzu" \
           --repo-root "$GITHUB_WORKSPACE" \
+          --query-timeout "$LACHESIS_QUERY_TIMEOUT" \
           -o "$LACHESIS_SARIF_FILE" \
           "${ARGS[@]}"
 

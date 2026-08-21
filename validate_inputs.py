@@ -20,6 +20,7 @@ def validate(
     lachesis_ref: str = "main",
     atropos_ref: str = "main",
     frontend_timeout: str = "300",
+    query_timeout: str = "300",
 ) -> list[str]:
     errors: list[str] = []
 
@@ -33,6 +34,7 @@ def validate(
         ("kuzu-buffer-pool-size", buffer_pool_size),
         ("c-jobs", c_jobs),
         ("frontend-timeout", frontend_timeout),
+        ("query-timeout", query_timeout),
     ):
         if not value and label == "c-jobs":
             continue
@@ -85,6 +87,7 @@ def main() -> int:
         lachesis_ref=os.environ.get("LACHESIS_REF", "main"),
         atropos_ref=os.environ.get("ATROPOS_REF", "main"),
         frontend_timeout=os.environ.get("LACHESIS_FRONTEND_TIMEOUT", "300"),
+        query_timeout=os.environ.get("LACHESIS_QUERY_TIMEOUT", "300"),
     )
     if errors:
         for error in errors:

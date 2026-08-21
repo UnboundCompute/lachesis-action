@@ -76,6 +76,14 @@ class ValidateInputsTests(unittest.TestCase):
         )
         self.assertIn("frontend-timeout must be a positive integer", errors)
 
+    def test_rejects_invalid_query_timeout(self):
+        errors = validate(
+            upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",
+            analyze_args="", sarif_file="report.sarif", source=".",
+            query_timeout="0",
+        )
+        self.assertIn("query-timeout must be a positive integer", errors)
+
     def test_rejects_analyzer_timeout_override(self):
         errors = validate(
             upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",

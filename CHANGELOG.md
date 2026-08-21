@@ -6,6 +6,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 - Reject `analyze-args` values that try to override the Action's `frontend-timeout`,
   keeping the documented execution bound effective for unattended scans.
+- Bound SARIF graph queries with the configurable `query-timeout` input so a stalled
+  query cannot leave an Action step waiting indefinitely.
 
 - Corrected the example workflow so its optional `lachesis-ref` does not suggest
   the Action's `v1.0.0` tag as an engine release; consumers must provide an actual

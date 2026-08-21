@@ -39,6 +39,7 @@ from typing import Any, Dict, List, Optional
 
 SCHEMA = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
 INFO_URI = "https://github.com/UnboundCompute/lachesis"
+DEFAULT_QUERY_TIMEOUT_SECONDS = 300
 
 # Guard status -> (ruleId, SARIF level, one-line rule description)
 RULES: Dict[str, Dict[str, str]] = {
@@ -79,12 +80,13 @@ def normalize_uri(path: str) -> str:
     return path or "."
 
 
-def run_query(query_cmd: List[str], graph: str, *args: str) -> Dict[str, Any]:
-    out = subprocess.check_output(
+def run_query(query_cmd: List[str], graph: str, *args: str,
+              timeout: int = DEFAULT_QUERY_TIMEOUT_SECONDS) -> Dict[str, Any]:
+    completed = subprocess.run(
         [*query_cmd, "--format", "json", graph, *args],
-        text=True,
+        text=True, capture_output=True, check=True, timeout=timeout,
     )
-    return json.loads(out)
+    return json.loads(completed.stdout)
 
 
 def classify(guard: Dict[str, Any]) -> str:
@@ -197,7 +199,8 @@ def build_result(
     return result
 
 
-def collect_paths(query_cmd: List[str], graph: str) -> List[Dict[str, Any]]:
+def collect_paths(query_cmd: List[str], graph: str,
+                  timeout: int = DEFAULT_QUERY_TIMEOUT_SECONDS) -> List[Dict[str, Any]]:
     """Return [{path_query, detail}] for every reachable path.
 
     Prefers the batch `security-paths` query: it loads and materializes the graph
@@ -206,7 +209,7 @@ def collect_paths(query_cmd: List[str], graph: str) -> List[Dict[str, Any]]:
     (the Action may install an older `lachesis-ref`).
     """
     try:
-        batch = run_query(query_cmd, graph, "security-paths")
+        batch = run_query(query_cmd, graph, "security-paths", timeout=timeout)
         entries = batch.get("paths")
         if entries is not None:
             return [
@@ -216,10 +219,10 @@ def collect_paths(query_cmd: List[str], graph: str) -> List[Dict[str, Any]]:
             ]
     except (subprocess.CalledProcessError, json.JSONDecodeError):
         pass  # older engine: fall back below
-    overview = run_query(query_cmd, graph, "overview")
+    overview = run_query(query_cmd, graph, "overview", timeout=timeout)
     security = (overview.get("manifest") or {}).get("security") or {}
     return [
-        {"pq": pq, "detail": run_query(query_cmd, graph, "security-path", pq["id"])}
+        {"pq": pq, "detail": run_query(query_cmd, graph, "security-path", pq["id"], timeout=timeout)}
         for pq in (security.get("path_queries") or [])
     ]
 
@@ -230,10 +233,11 @@ def build_sarif(
     repo_root: Optional[str],
     changed: Optional[set],
     excluded: Optional[List[str]] = None,
+    query_timeout: int = DEFAULT_QUERY_TIMEOUT_SECONDS,
 ) -> Dict[str, Any]:
     results: List[Dict[str, Any]] = []
     used_rules: Dict[str, Dict[str, str]] = {}
-    for entry in collect_paths(query_cmd, graph):
+    for entry in collect_paths(query_cmd, graph, timeout=query_timeout):
         res = build_result(entry["pq"], entry["detail"], repo_root)
         if res is None:
             continue
@@ -322,12 +326,18 @@ def main() -> int:
     ap.add_argument("--exclude", action="append",
                     help="drop findings under these paths/globs, e.g. a fixtures or "
                          "vendor dir (repeatable / comma-separated)")
+    ap.add_argument("--query-timeout", type=int, default=DEFAULT_QUERY_TIMEOUT_SECONDS,
+                    help="maximum seconds for each graph query")
     args = ap.parse_args()
+
+    if args.query_timeout <= 0:
+        ap.error("--query-timeout must be a positive integer")
 
     query_cmd = shlex.split(args.query_cmd)
     changed = load_changed(args)
     excluded = load_excluded(args)
-    sarif = build_sarif(args.graph, query_cmd, args.repo_root, changed, excluded)
+    sarif = build_sarif(args.graph, query_cmd, args.repo_root, changed, excluded,
+                        query_timeout=args.query_timeout)
 
     text = json.dumps(sarif, indent=2)
     n = len(sarif["runs"][0]["results"])
