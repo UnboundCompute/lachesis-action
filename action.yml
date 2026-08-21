@@ -127,8 +127,12 @@ runs:
         # Users with larger subsystems can raise this explicitly.
         LACHESIS_KUZU_BUFFER_POOL_SIZE: ${{ inputs.kuzu-buffer-pool-size }}
         LACHESIS_C_JOBS: ${{ inputs.c-jobs }}
+        LACHESIS_SOURCE: ${{ inputs.source }}
+        LACHESIS_ANALYZE_ARGS: ${{ inputs.analyze-args }}
       run: |
-        lachesis-analyze "${{ inputs.source }}" "$RUNNER_TEMP/lachesis.kuzu" ${{ inputs.analyze-args }}
+        # Split only on shell whitespace; never evaluate the input as shell code.
+        read -r -a ANALYZE_ARGS <<< "$LACHESIS_ANALYZE_ARGS"
+        lachesis-analyze "$LACHESIS_SOURCE" "$RUNNER_TEMP/lachesis.kuzu" "${ANALYZE_ARGS[@]}"
 
     - name: Export SARIF
       shell: bash
@@ -136,18 +140,21 @@ runs:
         # SARIF is one batch query; do not write a second graph-sized enriched cache
         # during the cold Action invocation. Local query users keep persistent caching.
         LACHESIS_QUERY_EPHEMERAL_ENRICH: "1"
+        LACHESIS_CHANGED_FILES: ${{ inputs.changed-files }}
+        LACHESIS_EXCLUDE: ${{ inputs.exclude }}
+        LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
       run: |
         ARGS=()
-        if [ -n "${{ inputs.changed-files }}" ]; then
-          ARGS+=(--changed-files "${{ inputs.changed-files }}")
+        if [ -n "$LACHESIS_CHANGED_FILES" ]; then
+          ARGS+=(--changed-files "$LACHESIS_CHANGED_FILES")
         fi
-        if [ -n "${{ inputs.exclude }}" ]; then
-          ARGS+=(--exclude "${{ inputs.exclude }}")
+        if [ -n "$LACHESIS_EXCLUDE" ]; then
+          ARGS+=(--exclude "$LACHESIS_EXCLUDE")
         fi
         python3 "$GITHUB_ACTION_PATH/sarif_export.py" \
           "$RUNNER_TEMP/lachesis.kuzu" \
           --repo-root "$GITHUB_WORKSPACE" \
-          -o "${{ inputs.sarif-file }}" \
+          -o "$LACHESIS_SARIF_FILE" \
           "${ARGS[@]}"
 
     - name: Upload to code scanning
@@ -159,8 +166,11 @@ runs:
     - name: Gate on findings
       if: ${{ inputs.fail-on != 'none' }}
       shell: bash
+      env:
+        LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+        LACHESIS_FAIL_ON: ${{ inputs.fail-on }}
       run: |
-        python3 - "${{ inputs.sarif-file }}" "${{ inputs.fail-on }}" <<'PY'
+        python3 - "$LACHESIS_SARIF_FILE" "$LACHESIS_FAIL_ON" <<'PY'
         import json, sys
         order = {"note": 1, "warning": 2, "error": 3}
         sarif_file, threshold = sys.argv[1], sys.argv[2]
