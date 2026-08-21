@@ -14,6 +14,7 @@ class ValidateInputsTests(unittest.TestCase):
                 c_jobs="",
                 analyze_args="--prune --incremental",
                 sarif_file="lachesis.sarif",
+                source=".",
             ),
         )
 
@@ -25,8 +26,9 @@ class ValidateInputsTests(unittest.TestCase):
             c_jobs="workers",
             analyze_args="--source 'unterminated",
             sarif_file=" ",
+            source="/path/that/does/not/exist",
         )
-        self.assertEqual(6, len(errors))
+        self.assertEqual(7, len(errors))
 
     def test_accepts_quoted_analyzer_args(self):
         self.assertEqual(
@@ -38,6 +40,7 @@ class ValidateInputsTests(unittest.TestCase):
                 c_jobs="2",
                 analyze_args='--exclude "test fixtures"',
                 sarif_file="out/report.sarif",
+                source=".",
             ),
         )
 

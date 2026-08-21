@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import shlex
 import sys
+from pathlib import Path
 
 
 def validate(
@@ -15,6 +16,7 @@ def validate(
     c_jobs: str,
     analyze_args: str,
     sarif_file: str,
+    source: str,
 ) -> list[str]:
     errors: list[str] = []
 
@@ -45,6 +47,11 @@ def validate(
     if not sarif_file.strip():
         errors.append("sarif-file must not be empty")
 
+    if not source.strip():
+        errors.append("source must name a directory")
+    elif not Path(source).is_dir():
+        errors.append(f"source directory does not exist: {source}")
+
     return errors
 
 
@@ -56,6 +63,7 @@ def main() -> int:
         c_jobs=os.environ.get("LACHESIS_C_JOBS", ""),
         analyze_args=os.environ.get("LACHESIS_ANALYZE_ARGS", ""),
         sarif_file=os.environ.get("LACHESIS_SARIF_FILE", ""),
+        source=os.environ.get("LACHESIS_SOURCE", ""),
     )
     if errors:
         for error in errors:
