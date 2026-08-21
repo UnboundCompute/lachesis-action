@@ -46,7 +46,7 @@ consumers who explicitly accept tag movement.
 ## Discoverability checklist
 
 - [ ] Marketplace listing published (Security + Code quality categories)
-- [ ] `demo/demo.gif` rendered from `demo/demo.tape` and referenced in the README
+- [x] `demo/demo.gif` rendered from `demo/demo.tape` and referenced in the README
 - [ ] Added to awesome lists: `awesome-actions`, `awesome-static-analysis`, `awesome-security`
-- [ ] README badge snippet shared for consumers to embed
-- [ ] Engine repo (`lachesis`) README links here as the official Action
+- [x] README badge snippet shared for consumers to embed
+- [x] Engine repo (`lachesis`) README links here as the official Action
