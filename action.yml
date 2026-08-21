@@ -81,13 +81,16 @@ runs:
       # is a build artifact absent from the repo, so vendor it FIRST (a pure-Python
       # fetch, no npm), then it gets packaged into the install.
       shell: bash
+      env:
+        LACHESIS_REPO_URL: ${{ inputs.lachesis-repo }}
+        LACHESIS_REF: ${{ inputs.lachesis-ref }}
       run: |
         SRC="$RUNNER_TEMP/lachesis-src"
         rm -rf "$SRC"
         # Keep ref flexibility (branch, tag, or SHA) without transferring every
         # blob in the engine history. Checkout fetches only the selected tree.
-        git clone --filter=blob:none --no-checkout "${{ inputs.lachesis-repo }}" "$SRC"
-        git -C "$SRC" checkout "${{ inputs.lachesis-ref }}"
+        git clone --filter=blob:none --no-checkout "$LACHESIS_REPO_URL" "$SRC"
+        git -C "$SRC" checkout "$LACHESIS_REF"
         echo "engine_sha=$(git -C "$SRC" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
         python3 -m pip install --upgrade pip
         python3 "$SRC/tools/vendor_typescript.py"
@@ -96,11 +99,14 @@ runs:
     - name: Install Atropos catalog
       id: install-atropos
       shell: bash
+      env:
+        ATROPOS_REPO_URL: ${{ inputs.atropos-repo }}
+        ATROPOS_REF: ${{ inputs.atropos-ref }}
       run: |
         CATALOG="$RUNNER_TEMP/atropos"
         rm -rf "$CATALOG"
-        git clone --filter=blob:none --no-checkout "${{ inputs.atropos-repo }}" "$CATALOG"
-        git -C "$CATALOG" checkout "${{ inputs.atropos-ref }}"
+        git clone --filter=blob:none --no-checkout "$ATROPOS_REPO_URL" "$CATALOG"
+        git -C "$CATALOG" checkout "$ATROPOS_REF"
         python3 "$CATALOG/tools/validate.py"
         echo "ATROPOS_ROOT=$CATALOG" >> "$GITHUB_ENV"
         echo "catalog_sha=$(git -C "$CATALOG" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
