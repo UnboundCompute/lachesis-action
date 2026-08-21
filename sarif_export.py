@@ -66,6 +66,19 @@ RULES: Dict[str, Dict[str, str]] = {
 }
 
 
+def normalize_uri(path: str) -> str:
+    """Normalize separators and optional ``./`` prefixes without changing names.
+
+    ``str.lstrip('./')`` is tempting but removes every leading dot, which corrupts
+    legitimate hidden paths such as ``.github/workflows/scan.yml``. Keep parent
+    traversals and hidden components intact so filters remain lossless.
+    """
+    path = path.replace(os.sep, "/")
+    while path.startswith("./"):
+        path = path[2:]
+    return path or "."
+
+
 def run_query(query_cmd: List[str], graph: str, *args: str) -> Dict[str, Any]:
     out = subprocess.check_output(
         [*query_cmd, "--format", "json", graph, *args],
@@ -92,7 +105,7 @@ def rel_uri(path: Optional[str], repo_root: Optional[str]) -> Optional[str]:
             path = os.path.relpath(path, repo_root)
         except ValueError:
             pass
-    return path.replace(os.sep, "/").lstrip("./") or path
+    return normalize_uri(path)
 
 
 def step_location(step: Dict[str, Any]) -> Dict[str, Optional[Any]]:
@@ -268,7 +281,7 @@ def load_changed(args: argparse.Namespace) -> Optional[set]:
         raw.extend(chunk.replace(",", " ").split())
     if not raw:
         return None
-    return {p.replace(os.sep, "/").lstrip("./") for p in raw if p.strip()}
+    return {normalize_uri(p) for p in raw if p.strip()}
 
 
 def load_excluded(args: argparse.Namespace) -> List[str]:
@@ -276,7 +289,7 @@ def load_excluded(args: argparse.Namespace) -> List[str]:
     raw: List[str] = []
     for chunk in args.exclude or []:
         raw.extend(chunk.replace(",", " ").split())
-    return [p.replace(os.sep, "/").lstrip("./").rstrip("/") for p in raw if p.strip()]
+    return [normalize_uri(p).rstrip("/") for p in raw if p.strip()]
 
 
 def is_excluded(uri: str, patterns: Optional[List[str]]) -> bool:

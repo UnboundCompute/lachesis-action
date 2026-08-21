@@ -30,6 +30,18 @@ class SarifExportTests(unittest.TestCase):
         self.assertTrue(sarif_export.is_excluded("src/generated/a.js", ["**/generated/**"]))
         self.assertFalse(sarif_export.is_excluded("src/app.py", ["src/vendor"]))
 
+    def test_path_normalization_preserves_hidden_components(self):
+        self.assertEqual(".github/workflows/scan.yml",
+                         sarif_export.normalize_uri("./.github/workflows/scan.yml"))
+        self.assertEqual(".env", sarif_export.normalize_uri(".env"))
+        self.assertEqual("../outside.py", sarif_export.normalize_uri("../outside.py"))
+
+        args = type("Args", (), {
+            "changed_from_file": None,
+            "changed_files": ["./.github/workflows/scan.yml"],
+        })()
+        self.assertEqual({".github/workflows/scan.yml"}, sarif_export.load_changed(args))
+
     def test_build_result_has_sink_anchor_and_code_flow(self):
         path = {
             "id": "path-1", "label": "request -> query",

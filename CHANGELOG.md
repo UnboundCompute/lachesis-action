@@ -4,6 +4,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+- SARIF path normalization now preserves hidden files and parent components while
+  removing only explicit `./` prefixes, keeping changed-file and exclude filters exact.
 - Added a `make check` developer gate; CI, release verification, and contributor
   instructions now use the same command.
 - Added contributor guidance covering the local gate, pinned workflow refs, and
