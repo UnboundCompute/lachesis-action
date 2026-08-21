@@ -4,6 +4,10 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+## [1.0.3]
+
+- Update the example-workflow regression test for the current reviewed Lachesis tag.
+
 ## [1.0.2]
 
 - Document release-tag-only engine and catalog inputs and use the current reviewed
