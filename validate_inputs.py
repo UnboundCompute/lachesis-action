@@ -44,9 +44,15 @@ def validate(
             errors.append(f"{label} must be a positive integer")
 
     try:
-        shlex.split(analyze_args)
+        analyze_tokens = shlex.split(analyze_args)
     except ValueError as error:
+        analyze_tokens = []
         errors.append(f"analyze-args has invalid shell quoting: {error}")
+    if any(token == "--timeout" or token.startswith("--timeout=")
+           for token in analyze_tokens):
+        errors.append(
+            "analyze-args must not override frontend-timeout; use the frontend-timeout input"
+        )
 
     if not sarif_file.strip():
         errors.append("sarif-file must not be empty")

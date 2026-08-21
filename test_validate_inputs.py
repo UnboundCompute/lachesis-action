@@ -76,6 +76,17 @@ class ValidateInputsTests(unittest.TestCase):
         )
         self.assertIn("frontend-timeout must be a positive integer", errors)
 
+    def test_rejects_analyzer_timeout_override(self):
+        errors = validate(
+            upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",
+            analyze_args="--prune --timeout=999999", sarif_file="report.sarif",
+            source=".", frontend_timeout="300",
+        )
+        self.assertIn(
+            "analyze-args must not override frontend-timeout; use the frontend-timeout input",
+            errors,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
