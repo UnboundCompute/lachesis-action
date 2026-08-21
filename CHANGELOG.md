@@ -22,6 +22,6 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 - Hardened configurable inputs, dependency checkouts, cache invalidation, and
   partial-clone fallback behavior for production runners.
 
-## [1]
+## [1.0.0]
 
 - First stable composite Action release for GitHub code scanning.
