@@ -71,7 +71,7 @@ jobs:
       security-events: write   # required to upload SARIF to code scanning
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-      - uses: UnboundCompute/lachesis-action@v1
+      - uses: UnboundCompute/lachesis-action@51d7593825790ab01aa65887b0ad67d2366f306c # v1.0.0
         with:
           source: "."
 ```

@@ -6,6 +6,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 - Use shallow ref-aware source clones in the composite action to reduce cold-start
   transfer and checkout cost while retaining branch, tag, and SHA inputs.
+- Pin the Action's own workflows and published usage examples to the v1.0.0
+  release commit; mutable major tags remain an explicit opt-in.
 - Hardened configurable inputs, dependency checkouts, cache invalidation, and
   partial-clone fallback behavior for production runners.
 
