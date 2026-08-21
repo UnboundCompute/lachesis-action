@@ -25,7 +25,7 @@ class ValidateInputsTests(unittest.TestCase):
             buffer_pool_size="0",
             c_jobs="workers",
             analyze_args="--source 'unterminated",
-            sarif_file=" ",
+            sarif_file="/path/that/does/not/exist/report.sarif",
             source="/path/that/does/not/exist",
         )
         self.assertEqual(7, len(errors))
@@ -39,7 +39,7 @@ class ValidateInputsTests(unittest.TestCase):
                 buffer_pool_size="4096",
                 c_jobs="2",
                 analyze_args='--exclude "test fixtures"',
-                sarif_file="out/report.sarif",
+                sarif_file="report.sarif",
                 source=".",
             ),
         )

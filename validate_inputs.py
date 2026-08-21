@@ -46,6 +46,8 @@ def validate(
 
     if not sarif_file.strip():
         errors.append("sarif-file must not be empty")
+    elif not Path(sarif_file).expanduser().parent.is_dir():
+        errors.append(f"sarif-file parent directory does not exist: {sarif_file}")
 
     if not source.strip():
         errors.append("source must name a directory")

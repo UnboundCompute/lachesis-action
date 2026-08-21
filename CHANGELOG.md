@@ -12,6 +12,7 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   resource limits, paths, or analyzer quoting fail fast with actionable errors.
 - Check that the configured source directory exists before installing dependencies,
   avoiding expensive partial runs for checkout/path mistakes.
+- Check that the SARIF output's parent directory exists before starting the scan.
 - Run the complete dependency-free test suite in CI, release verification, and the
   release checklist rather than only the SARIF exporter test.
 - Hardened configurable inputs, dependency checkouts, cache invalidation, and
