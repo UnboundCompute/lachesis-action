@@ -27,11 +27,12 @@ git tag -f v1 v1.0.0
 git push -f origin v1
 ```
 
-Consumers then use `UnboundCompute/lachesis-action@v1`.
+Consumers should use the reviewed release tag
+`UnboundCompute/lachesis-action@v1` (the `v1.0.0` release).
 
-> Reproducibility note: for a locked release, set the `lachesis-ref` default in
-> `action.yml` to the engine's stable ref (e.g. its `v1.0.0` tag) at the moment you
-> cut this tag, so `@v1` pins both the wrapper and the engine it installs.
+> Reproducibility note: for a locked release, set the `lachesis-ref` and
+> `atropos-ref` inputs to reviewed release tags. Pinning the wrapper
+> commit alone does not freeze the engine or model catalog it installs.
 
 ## Listing copy (paste-ready)
 
@@ -43,7 +44,7 @@ Consumers then use `UnboundCompute/lachesis-action@v1`.
 ## Discoverability checklist
 
 - [ ] Marketplace listing published (Security + Code quality categories)
-- [ ] `demo/demo.gif` rendered from `demo/demo.tape` and referenced in the README
+- [x] `demo/demo.gif` rendered from `demo/demo.tape` and referenced in the README
 - [ ] Added to awesome lists: `awesome-actions`, `awesome-static-analysis`, `awesome-security`
-- [ ] README badge snippet shared for consumers to embed
-- [ ] Engine repo (`lachesis`) README links here as the official Action
+- [x] README badge snippet shared for consumers to embed
+- [x] Engine repo (`lachesis`) README links here as the official Action

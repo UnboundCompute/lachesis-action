@@ -10,6 +10,11 @@ Everything runs on your own runner.
 [![Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-Lachesis-8250df?logo=github)](https://github.com/marketplace/actions/lachesis-security-scan)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 
+Security reporting guidance is in [`SECURITY.md`](./SECURITY.md). Contributor and
+local-gate guidance is in [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+
+For local development and CI, run the same dependency-free gate with `make check`.
+
 ---
 
 ## Why it's different
@@ -98,20 +103,50 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | Input | Default | Notes |
 |---|---|---|
 | `source` | `.` | Directory to analyze. |
+| `python-version` | `3.11` | Python runtime for the engine. Override only with a version tested against the Lachesis/Kùzu dependency set. |
+| `kuzu-buffer-pool-size` | `1073741824` | Kùzu buffer-pool ceiling in bytes. Raise it for very large trees; lower it on constrained runners. |
 | `exclude` | `` | Drop findings under these paths/globs (e.g. a `fixtures` or `vendor` dir). |
 | `changed-files` | `` | If set, only report findings in these files. |
 | `analyze-args` | `--prune --incremental` | Flags for the graph build. |
+| `c-jobs` | empty (adaptive) | Optional Clang frontend concurrency override; use `1` to cap memory or `2` for a measured medium-tree runner. |
+| `frontend-timeout` | `300` | Maximum seconds for one Lachesis frontend invocation. |
+| `query-timeout` | `300` | Maximum seconds for one SARIF graph query. |
+| `build-timeout` | `1800` | Maximum seconds for the complete graph build. |
 | `lachesis-ref` | `main` | Branch/tag/SHA of the Lachesis engine to install. Pin for reproducibility. |
-| `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. |
+| `atropos-repo` | `https://github.com/UnboundCompute/atropos` | Atropos catalog repository to load. |
+| `atropos-ref` | `main` | Branch/tag/SHA of Atropos. Pin a tag or commit for reproducible findings. |
+| `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. Other values fail configuration validation. |
 | `upload` | `true` | Upload SARIF to code scanning. |
 | `sarif-file` | `lachesis.sarif` | Output path. |
 
+The Action validates its resource limits, output path, boolean/threshold values, and
+quoted analyzer arguments before cloning or installing anything. Invalid configuration
+fails with exit code 2 and an actionable message, so a misconfigured workflow does not
+spend runner time on a partial scan.
+
+Dependency installation is noninteractive and uses bounded network behavior: Git aborts
+transfers below 1,000 bytes/second for 60 seconds, and pip uses a 60-second socket
+timeout. Credential prompts and pip's version-check request cannot leave a runner waiting.
+
+## Reproducible production use
+
+Set `lachesis-ref` to a reviewed Lachesis release tag in production workflows. The
+default `main` ref is intended for development and follows engine changes. Set
+`atropos-ref` to a reviewed catalog release tag as well. The Action itself is released
+under its own `v1` tag; release verification and
+rollback guidance are in [`RELEASING.md`](./RELEASING.md).
+
 ## How it works
 
-1. Installs the [Lachesis engine](https://github.com/UnboundCompute/lachesis) (clones and vendors its TypeScript frontend, pure Python, no `npm`).
-2. Builds a code graph of `source`, a light pruned build; the data-flow tier folds lazily.
-3. Traces every source-to-sink path, classifies its guard status, and renders SARIF.
-4. Uploads to GitHub code scanning.
+1. Installs the [Lachesis engine](https://github.com/UnboundCompute/lachesis) (uses a blob-filtered checkout, then vendors its TypeScript frontend; pure Python, no `npm`).
+2. Installs and validates the [Atropos catalog](https://github.com/UnboundCompute/atropos) from a blob-filtered checkout,
+   exporting `ATROPOS_ROOT` so model binding is explicit rather than dependent on a
+   sibling checkout.
+3. Restores the incremental frontend bundles when the source, lockfiles, engine, and catalog refs match, then
+   builds a light pruned graph; the data-flow tier folds lazily. The cache is only a
+   compile reuse hint: Lachesis still validates file digests and output-affecting flags.
+4. Traces every source-to-sink path, classifies its guard status, and renders SARIF.
+5. Uploads to GitHub code scanning.
 
 No code leaves your runner. No account. No API key.
 

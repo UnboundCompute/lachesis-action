@@ -1,0 +1,50 @@
+name: release verification
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: verify tagged Action
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Verify tag has changelog entry
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+
+          version = os.environ["GITHUB_REF_NAME"].removeprefix("v")
+          changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
+          headings = (f"## [{version}]", f"## {version}")
+          if not any(heading in changelog for heading in headings):
+              raise SystemExit(
+                  f"CHANGELOG.md has no release heading for {version}"
+              )
+          declared = Path("VERSION").read_text(encoding="utf-8").strip()
+          if version.count(".") == 2 and version != declared:
+              raise SystemExit(f"VERSION declares {declared}, but tag is {version}")
+          if version.split(".", 1)[0] != declared.split(".", 1)[0]:
+              raise SystemExit(f"major tag v{version} does not match VERSION {declared}")
+          print(f"changelog entry: {version}")
+          print(f"Action version: {declared}")
+          PY
+      - name: Validate metadata and tests
+        run: |
+          make check
+          python3 - <<'PY'
+          from pathlib import Path
+          text = Path("action.yml").read_text()
+          assert 'name: "Lachesis Security Scan"' in text
+          assert 'using: "composite"' in text
+          print("composite Action metadata is valid")
+          PY

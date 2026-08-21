@@ -4,7 +4,7 @@
 #
 # Prereqs the tape assumes are already set up in the recording shell:
 #   pip install "git+https://github.com/UnboundCompute/lachesis"
-#   python3 -m tools.vendor_typescript   # (from a lachesis checkout)
+#   python3 tools/vendor_typescript.py   # (from a lachesis checkout)
 # Point PROJECT at any small TS/Python/C project with a guard differential;
 # the bundled lachesis fixture at
 #   lachesis/frontends/typescript/fixtures/project

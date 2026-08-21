@@ -32,12 +32,14 @@ import argparse
 import fnmatch
 import json
 import os
+import shlex
 import subprocess
 import sys
 from typing import Any, Dict, List, Optional
 
 SCHEMA = "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json"
 INFO_URI = "https://github.com/UnboundCompute/lachesis"
+DEFAULT_QUERY_TIMEOUT_SECONDS = 300
 
 # Guard status -> (ruleId, SARIF level, one-line rule description)
 RULES: Dict[str, Dict[str, str]] = {
@@ -65,12 +67,26 @@ RULES: Dict[str, Dict[str, str]] = {
 }
 
 
-def run_query(query_cmd: List[str], graph: str, *args: str) -> Dict[str, Any]:
-    out = subprocess.check_output(
+def normalize_uri(path: str) -> str:
+    """Normalize separators and optional ``./`` prefixes without changing names.
+
+    ``str.lstrip('./')`` is tempting but removes every leading dot, which corrupts
+    legitimate hidden paths such as ``.github/workflows/scan.yml``. Keep parent
+    traversals and hidden components intact so filters remain lossless.
+    """
+    path = path.replace(os.sep, "/")
+    while path.startswith("./"):
+        path = path[2:]
+    return path or "."
+
+
+def run_query(query_cmd: List[str], graph: str, *args: str,
+              timeout: int = DEFAULT_QUERY_TIMEOUT_SECONDS) -> Dict[str, Any]:
+    completed = subprocess.run(
         [*query_cmd, "--format", "json", graph, *args],
-        text=True,
+        text=True, capture_output=True, check=True, timeout=timeout,
     )
-    return json.loads(out)
+    return json.loads(completed.stdout)
 
 
 def classify(guard: Dict[str, Any]) -> str:
@@ -91,7 +107,7 @@ def rel_uri(path: Optional[str], repo_root: Optional[str]) -> Optional[str]:
             path = os.path.relpath(path, repo_root)
         except ValueError:
             pass
-    return path.replace(os.sep, "/").lstrip("./") or path
+    return normalize_uri(path)
 
 
 def step_location(step: Dict[str, Any]) -> Dict[str, Optional[Any]]:
@@ -183,7 +199,8 @@ def build_result(
     return result
 
 
-def collect_paths(query_cmd: List[str], graph: str) -> List[Dict[str, Any]]:
+def collect_paths(query_cmd: List[str], graph: str,
+                  timeout: int = DEFAULT_QUERY_TIMEOUT_SECONDS) -> List[Dict[str, Any]]:
     """Return [{path_query, detail}] for every reachable path.
 
     Prefers the batch `security-paths` query: it loads and materializes the graph
@@ -192,7 +209,7 @@ def collect_paths(query_cmd: List[str], graph: str) -> List[Dict[str, Any]]:
     (the Action may install an older `lachesis-ref`).
     """
     try:
-        batch = run_query(query_cmd, graph, "security-paths")
+        batch = run_query(query_cmd, graph, "security-paths", timeout=timeout)
         entries = batch.get("paths")
         if entries is not None:
             return [
@@ -202,10 +219,10 @@ def collect_paths(query_cmd: List[str], graph: str) -> List[Dict[str, Any]]:
             ]
     except (subprocess.CalledProcessError, json.JSONDecodeError):
         pass  # older engine: fall back below
-    overview = run_query(query_cmd, graph, "overview")
+    overview = run_query(query_cmd, graph, "overview", timeout=timeout)
     security = (overview.get("manifest") or {}).get("security") or {}
     return [
-        {"pq": pq, "detail": run_query(query_cmd, graph, "security-path", pq["id"])}
+        {"pq": pq, "detail": run_query(query_cmd, graph, "security-path", pq["id"], timeout=timeout)}
         for pq in (security.get("path_queries") or [])
     ]
 
@@ -216,10 +233,11 @@ def build_sarif(
     repo_root: Optional[str],
     changed: Optional[set],
     excluded: Optional[List[str]] = None,
+    query_timeout: int = DEFAULT_QUERY_TIMEOUT_SECONDS,
 ) -> Dict[str, Any]:
     results: List[Dict[str, Any]] = []
     used_rules: Dict[str, Dict[str, str]] = {}
-    for entry in collect_paths(query_cmd, graph):
+    for entry in collect_paths(query_cmd, graph, timeout=query_timeout):
         res = build_result(entry["pq"], entry["detail"], repo_root)
         if res is None:
             continue
@@ -267,7 +285,7 @@ def load_changed(args: argparse.Namespace) -> Optional[set]:
         raw.extend(chunk.replace(",", " ").split())
     if not raw:
         return None
-    return {p.replace(os.sep, "/").lstrip("./") for p in raw if p.strip()}
+    return {normalize_uri(p) for p in raw if p.strip()}
 
 
 def load_excluded(args: argparse.Namespace) -> List[str]:
@@ -275,7 +293,7 @@ def load_excluded(args: argparse.Namespace) -> List[str]:
     raw: List[str] = []
     for chunk in args.exclude or []:
         raw.extend(chunk.replace(",", " ").split())
-    return [p.replace(os.sep, "/").lstrip("./").rstrip("/") for p in raw if p.strip()]
+    return [normalize_uri(p).rstrip("/") for p in raw if p.strip()]
 
 
 def is_excluded(uri: str, patterns: Optional[List[str]]) -> bool:
@@ -299,20 +317,27 @@ def main() -> int:
     ap.add_argument("-o", "--output", default="-", help="SARIF output file (default: stdout)")
     ap.add_argument("--repo-root", default=os.environ.get("GITHUB_WORKSPACE") or os.getcwd(),
                     help="root the SARIF uris are relative to (default: $GITHUB_WORKSPACE or cwd)")
-    ap.add_argument("--query-cmd", default="python3 -m lachesis.cli.query",
-                    help="how to invoke the query CLI (default: 'python3 -m lachesis.cli.query')")
+    default_query = shlex.join([sys.executable, "-m", "lachesis.cli.query"])
+    ap.add_argument("--query-cmd", default=default_query,
+                    help=f"how to invoke the query CLI (default: {default_query!r})")
     ap.add_argument("--changed-files", action="append",
                     help="only report findings in these files (repeatable / comma-separated)")
     ap.add_argument("--changed-from-file", help="read the changed-file list from this path")
     ap.add_argument("--exclude", action="append",
                     help="drop findings under these paths/globs, e.g. a fixtures or "
                          "vendor dir (repeatable / comma-separated)")
+    ap.add_argument("--query-timeout", type=int, default=DEFAULT_QUERY_TIMEOUT_SECONDS,
+                    help="maximum seconds for each graph query")
     args = ap.parse_args()
 
-    query_cmd = args.query_cmd.split()
+    if args.query_timeout <= 0:
+        ap.error("--query-timeout must be a positive integer")
+
+    query_cmd = shlex.split(args.query_cmd)
     changed = load_changed(args)
     excluded = load_excluded(args)
-    sarif = build_sarif(args.graph, query_cmd, args.repo_root, changed, excluded)
+    sarif = build_sarif(args.graph, query_cmd, args.repo_root, changed, excluded,
+                        query_timeout=args.query_timeout)
 
     text = json.dumps(sarif, indent=2)
     n = len(sarif["runs"][0]["results"])
