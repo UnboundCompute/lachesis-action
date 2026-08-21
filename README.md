@@ -124,6 +124,9 @@ quoted analyzer arguments before cloning or installing anything. Invalid configu
 fails with exit code 2 and an actionable message, so a misconfigured workflow does not
 spend runner time on a partial scan.
 
+Dependency installation is noninteractive and uses a 60-second pip network timeout;
+credential prompts and pip's version-check request cannot leave a runner waiting.
+
 ## Reproducible production use
 
 Pin `lachesis-ref` to an immutable Lachesis release tag or commit SHA in production

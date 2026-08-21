@@ -10,6 +10,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   synchronized before a release is tagged.
 - Action runs now warn when engine or catalog refs remain on mutable `main`, while
   retaining that default for development convenience.
+- Dependency installation now disables pip prompts and version checks and applies a
+  60-second network timeout, preventing unattended setup from hanging on a runner.
 
 - Reject `analyze-args` values that try to override the Action's `frontend-timeout`,
   keeping the documented execution bound effective for unattended scans.

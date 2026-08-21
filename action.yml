@@ -125,6 +125,9 @@ runs:
         LACHESIS_REPO_URL: ${{ inputs.lachesis-repo }}
         LACHESIS_REF: ${{ inputs.lachesis-ref }}
         GIT_TERMINAL_PROMPT: "0"
+        PIP_NO_INPUT: "1"
+        PIP_DISABLE_PIP_VERSION_CHECK: "1"
+        PIP_DEFAULT_TIMEOUT: "60"
       run: |
         SRC="$RUNNER_TEMP/lachesis-src"
         rm -rf "$SRC"
@@ -157,6 +160,9 @@ runs:
         ATROPOS_REPO_URL: ${{ inputs.atropos-repo }}
         ATROPOS_REF: ${{ inputs.atropos-ref }}
         GIT_TERMINAL_PROMPT: "0"
+        PIP_NO_INPUT: "1"
+        PIP_DISABLE_PIP_VERSION_CHECK: "1"
+        PIP_DEFAULT_TIMEOUT: "60"
       run: |
         CATALOG="$RUNNER_TEMP/atropos"
         rm -rf "$CATALOG"
