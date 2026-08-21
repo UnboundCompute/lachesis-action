@@ -97,7 +97,7 @@ runs:
 
     - name: Set up Node
       # Needed at analyze time: the TypeScript frontend runs under node.
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v7
       with:
         node-version: "22"
 
