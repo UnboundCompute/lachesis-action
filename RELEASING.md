@@ -4,7 +4,8 @@ The Action is a composite action and is released independently from the Lachesis
 engine. Keep the Action tag stable while engine versions advance through the
 `lachesis-ref` input.
 
-Every release must have a matching heading in [`CHANGELOG.md`](CHANGELOG.md). The
+Every release must update [`VERSION`](VERSION) and have a matching heading in
+[`CHANGELOG.md`](CHANGELOG.md). The
 release workflow accepts either `## [VERSION]` or `## VERSION`, so the existing `v1`
 major tag and future semantic-version tags use the same gate.
 
@@ -30,7 +31,9 @@ the composite-action metadata and test suite but does not publish or move any ta
 
 ## Tagging and rollback
 
-Create an annotated `vMAJOR` tag only after the release candidate workflow is green.
+Create an annotated `vMAJOR` or `vMAJOR.MINOR.PATCH` tag only after the release candidate
+workflow is green. The workflow checks exact semantic tags against `VERSION` and checks
+major tags against its major component.
 Production workflows should pin `lachesis-ref` to an immutable Lachesis tag or SHA;
 the Action's moving default exists for development convenience and must not be used as
 an audit reproducibility boundary. Never overwrite a published tag—cut a patch tag and

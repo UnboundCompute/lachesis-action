@@ -4,6 +4,9 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+- Added a machine-readable `VERSION` file; release CI now checks semantic tags against
+  it and prevents a major tag from crossing release lines.
+
 - Reject `analyze-args` values that try to override the Action's `frontend-timeout`,
   keeping the documented execution bound effective for unattended scans.
 - Bound SARIF graph queries with the configurable `query-timeout` input so a stalled
