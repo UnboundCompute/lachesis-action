@@ -88,9 +88,18 @@ runs:
       run: |
         SRC="$RUNNER_TEMP/lachesis-src"
         rm -rf "$SRC"
+        clone_source() {
+          local url="$1" dir="$2"
+          if git clone --filter=blob:none --no-checkout "$url" "$dir"; then
+            return 0
+          fi
+          echo "partial clone is unavailable for this Git server; retrying without the blob filter"
+          rm -rf "$dir"
+          git clone --no-checkout "$url" "$dir"
+        }
         # Keep ref flexibility (branch, tag, or SHA) without transferring every
         # blob in the engine history. Checkout fetches only the selected tree.
-        git clone --filter=blob:none --no-checkout "$LACHESIS_REPO_URL" "$SRC"
+        clone_source "$LACHESIS_REPO_URL" "$SRC"
         git -C "$SRC" checkout "$LACHESIS_REF"
         echo "engine_sha=$(git -C "$SRC" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
         python3 -m pip install --upgrade pip
@@ -106,7 +115,16 @@ runs:
       run: |
         CATALOG="$RUNNER_TEMP/atropos"
         rm -rf "$CATALOG"
-        git clone --filter=blob:none --no-checkout "$ATROPOS_REPO_URL" "$CATALOG"
+        clone_source() {
+          local url="$1" dir="$2"
+          if git clone --filter=blob:none --no-checkout "$url" "$dir"; then
+            return 0
+          fi
+          echo "partial clone is unavailable for this Git server; retrying without the blob filter"
+          rm -rf "$dir"
+          git clone --no-checkout "$url" "$dir"
+        }
+        clone_source "$ATROPOS_REPO_URL" "$CATALOG"
         git -C "$CATALOG" checkout "$ATROPOS_REF"
         python3 "$CATALOG/tools/validate.py"
         echo "ATROPOS_ROOT=$CATALOG" >> "$GITHUB_ENV"
