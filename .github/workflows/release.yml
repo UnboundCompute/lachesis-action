@@ -34,7 +34,7 @@ jobs:
           PY
       - name: Validate metadata and tests
         run: |
-          python3 -m unittest discover -s . -p 'test*.py'
+          make check
           python3 - <<'PY'
           from pathlib import Path
           text = Path("action.yml").read_text()

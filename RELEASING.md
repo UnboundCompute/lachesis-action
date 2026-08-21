@@ -14,10 +14,10 @@ workflow on that interpreter before publishing a tag.
 
 ## Verification
 
-Run the dependency-free SARIF tests:
+Run the dependency-free Action gate:
 
 ```bash
-python3 -m unittest discover -s . -p 'test*.py'
+make check
 ```
 
 For a release candidate, run the example workflow against a pinned Lachesis commit and

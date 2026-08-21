@@ -12,6 +12,8 @@ Everything runs on your own runner.
 
 Security reporting guidance is in [`SECURITY.md`](./SECURITY.md).
 
+For local development and CI, run the same dependency-free gate with `make check`.
+
 ---
 
 ## Why it's different
