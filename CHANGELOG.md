@@ -4,6 +4,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+- Engine and catalog Git checkouts now disable terminal credential prompts so a
+  missing credential fails fast instead of hanging a CI runner.
 - SARIF path normalization now preserves hidden files and parent components while
   removing only explicit `./` prefixes, keeping changed-file and exclude filters exact.
 - Added a `make check` developer gate; CI, release verification, and contributor

@@ -103,6 +103,7 @@ runs:
       env:
         LACHESIS_REPO_URL: ${{ inputs.lachesis-repo }}
         LACHESIS_REF: ${{ inputs.lachesis-ref }}
+        GIT_TERMINAL_PROMPT: "0"
       run: |
         SRC="$RUNNER_TEMP/lachesis-src"
         rm -rf "$SRC"
@@ -134,6 +135,7 @@ runs:
       env:
         ATROPOS_REPO_URL: ${{ inputs.atropos-repo }}
         ATROPOS_REF: ${{ inputs.atropos-ref }}
+        GIT_TERMINAL_PROMPT: "0"
       run: |
         CATALOG="$RUNNER_TEMP/atropos"
         rm -rf "$CATALOG"
