@@ -44,6 +44,21 @@ class ValidateInputsTests(unittest.TestCase):
             ),
         )
 
+    def test_rejects_empty_dependency_refs(self):
+        errors = validate(
+            upload="true",
+            fail_on="none",
+            buffer_pool_size="4096",
+            c_jobs="",
+            analyze_args="",
+            sarif_file="report.sarif",
+            source=".",
+            lachesis_ref=" ",
+            atropos_ref="",
+        )
+        self.assertIn("lachesis-ref must not be empty", errors)
+        self.assertIn("atropos-ref must not be empty", errors)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -61,6 +61,8 @@ runs:
         LACHESIS_ANALYZE_ARGS: ${{ inputs.analyze-args }}
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
         LACHESIS_SOURCE: ${{ inputs.source }}
+        LACHESIS_REF: ${{ inputs.lachesis-ref }}
+        ATROPOS_REF: ${{ inputs.atropos-ref }}
       run: python3 "$GITHUB_ACTION_PATH/validate_inputs.py"
 
     - name: Set up Python

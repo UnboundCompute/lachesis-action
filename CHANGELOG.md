@@ -6,6 +6,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 - Added a `make check` developer gate; CI, release verification, and contributor
   instructions now use the same command.
+- Action preflight now rejects empty Lachesis and Atropos refs before starting
+  network checkouts.
 - The `fail-on` gate now reports readable errors for missing, malformed, or
   structurally invalid SARIF instead of exposing a Python traceback.
 - Use shallow ref-aware source clones in the composite action to reduce cold-start

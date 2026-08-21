@@ -17,6 +17,8 @@ def validate(
     analyze_args: str,
     sarif_file: str,
     source: str,
+    lachesis_ref: str = "main",
+    atropos_ref: str = "main",
 ) -> list[str]:
     errors: list[str] = []
 
@@ -54,6 +56,11 @@ def validate(
     elif not Path(source).is_dir():
         errors.append(f"source directory does not exist: {source}")
 
+    if not lachesis_ref.strip():
+        errors.append("lachesis-ref must not be empty")
+    if not atropos_ref.strip():
+        errors.append("atropos-ref must not be empty")
+
     return errors
 
 
@@ -66,6 +73,8 @@ def main() -> int:
         analyze_args=os.environ.get("LACHESIS_ANALYZE_ARGS", ""),
         sarif_file=os.environ.get("LACHESIS_SARIF_FILE", ""),
         source=os.environ.get("LACHESIS_SOURCE", ""),
+        lachesis_ref=os.environ.get("LACHESIS_REF", "main"),
+        atropos_ref=os.environ.get("ATROPOS_REF", "main"),
     )
     if errors:
         for error in errors:
