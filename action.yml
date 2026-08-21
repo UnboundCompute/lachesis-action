@@ -125,6 +125,8 @@ runs:
         LACHESIS_REPO_URL: ${{ inputs.lachesis-repo }}
         LACHESIS_REF: ${{ inputs.lachesis-ref }}
         GIT_TERMINAL_PROMPT: "0"
+        GIT_HTTP_LOW_SPEED_LIMIT: "1000"
+        GIT_HTTP_LOW_SPEED_TIME: "60"
         PIP_NO_INPUT: "1"
         PIP_DISABLE_PIP_VERSION_CHECK: "1"
         PIP_DEFAULT_TIMEOUT: "60"
@@ -160,6 +162,8 @@ runs:
         ATROPOS_REPO_URL: ${{ inputs.atropos-repo }}
         ATROPOS_REF: ${{ inputs.atropos-ref }}
         GIT_TERMINAL_PROMPT: "0"
+        GIT_HTTP_LOW_SPEED_LIMIT: "1000"
+        GIT_HTTP_LOW_SPEED_TIME: "60"
         PIP_NO_INPUT: "1"
         PIP_DISABLE_PIP_VERSION_CHECK: "1"
         PIP_DEFAULT_TIMEOUT: "60"

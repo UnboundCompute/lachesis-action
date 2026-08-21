@@ -13,6 +13,11 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertEqual(2, metadata.count('PIP_DISABLE_PIP_VERSION_CHECK: "1"'))
         self.assertEqual(2, metadata.count('PIP_DEFAULT_TIMEOUT: "60"'))
 
+    def test_dependency_checkouts_abort_stalled_http_transfers(self):
+        metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
+        self.assertEqual(2, metadata.count('GIT_HTTP_LOW_SPEED_LIMIT: "1000"'))
+        self.assertEqual(2, metadata.count('GIT_HTTP_LOW_SPEED_TIME: "60"'))
+
 
 if __name__ == "__main__":
     unittest.main()

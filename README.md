@@ -124,8 +124,9 @@ quoted analyzer arguments before cloning or installing anything. Invalid configu
 fails with exit code 2 and an actionable message, so a misconfigured workflow does not
 spend runner time on a partial scan.
 
-Dependency installation is noninteractive and uses a 60-second pip network timeout;
-credential prompts and pip's version-check request cannot leave a runner waiting.
+Dependency installation is noninteractive and uses bounded network behavior: Git aborts
+transfers below 1,000 bytes/second for 60 seconds, and pip uses a 60-second socket
+timeout. Credential prompts and pip's version-check request cannot leave a runner waiting.
 
 ## Reproducible production use
 
