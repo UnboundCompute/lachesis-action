@@ -11,6 +11,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   keeping the documented execution bound effective for unattended scans.
 - Bound SARIF graph queries with the configurable `query-timeout` input so a stalled
   query cannot leave an Action step waiting indefinitely.
+- Added a configurable 30-minute default `build-timeout`; expired graph builds now
+  terminate their whole process group instead of leaving an Action step running forever.
 - Corrected release guidance to describe the actual Python 3.11 verification jobs,
   rather than implying the Action itself runs a Python-version matrix.
 

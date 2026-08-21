@@ -35,6 +35,9 @@ inputs:
   query-timeout:
     description: "Maximum seconds for one SARIF graph query."
     default: "300"
+  build-timeout:
+    description: "Maximum seconds for the complete Lachesis graph build."
+    default: "1800"
   kuzu-buffer-pool-size:
     description: "Kùzu buffer pool ceiling in bytes for graph materialization."
     default: "1073741824"
@@ -71,6 +74,7 @@ runs:
         ATROPOS_REF: ${{ inputs.atropos-ref }}
         LACHESIS_FRONTEND_TIMEOUT: ${{ inputs.frontend-timeout }}
         LACHESIS_QUERY_TIMEOUT: ${{ inputs.query-timeout }}
+        LACHESIS_BUILD_TIMEOUT: ${{ inputs.build-timeout }}
       run: python3 "$GITHUB_ACTION_PATH/validate_inputs.py"
 
     - name: Set up Python
@@ -179,12 +183,14 @@ runs:
         LACHESIS_SOURCE: ${{ inputs.source }}
         LACHESIS_ANALYZE_ARGS: ${{ inputs.analyze-args }}
         LACHESIS_FRONTEND_TIMEOUT: ${{ inputs.frontend-timeout }}
+        LACHESIS_BUILD_TIMEOUT: ${{ inputs.build-timeout }}
       run: |
         # Preserve shell-style quoting in the documented flag string without
         # evaluating it as shell code.
         python3 - <<'PY'
         import os
         import shlex
+        import signal
         import subprocess
 
         args = [
@@ -195,7 +201,21 @@ runs:
         ]
         if not any(arg == "--timeout" or arg.startswith("--timeout=") for arg in args):
             args.extend(("--timeout", os.environ["LACHESIS_FRONTEND_TIMEOUT"]))
-        subprocess.run(args, check=True)
+        timeout = int(os.environ["LACHESIS_BUILD_TIMEOUT"])
+        process = subprocess.Popen(args, start_new_session=(os.name == "posix"))
+        try:
+            return_code = process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            if os.name == "posix":
+                os.killpg(process.pid, signal.SIGKILL)
+            else:  # pragma: no cover - GitHub's supported runners are POSIX
+                process.kill()
+            process.wait()
+            raise SystemExit(
+                f"lachesis: graph build exceeded build-timeout ({timeout}s)"
+            )
+        if return_code:
+            raise SystemExit(return_code)
         PY
 
     - name: Export SARIF

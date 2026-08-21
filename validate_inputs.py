@@ -21,6 +21,7 @@ def validate(
     atropos_ref: str = "main",
     frontend_timeout: str = "300",
     query_timeout: str = "300",
+    build_timeout: str = "1800",
 ) -> list[str]:
     errors: list[str] = []
 
@@ -35,6 +36,7 @@ def validate(
         ("c-jobs", c_jobs),
         ("frontend-timeout", frontend_timeout),
         ("query-timeout", query_timeout),
+        ("build-timeout", build_timeout),
     ):
         if not value and label == "c-jobs":
             continue
@@ -88,6 +90,7 @@ def main() -> int:
         atropos_ref=os.environ.get("ATROPOS_REF", "main"),
         frontend_timeout=os.environ.get("LACHESIS_FRONTEND_TIMEOUT", "300"),
         query_timeout=os.environ.get("LACHESIS_QUERY_TIMEOUT", "300"),
+        build_timeout=os.environ.get("LACHESIS_BUILD_TIMEOUT", "1800"),
     )
     if errors:
         for error in errors:
