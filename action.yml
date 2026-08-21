@@ -14,6 +14,12 @@ inputs:
   lachesis-ref:
     description: "Branch, tag, or SHA of Lachesis to install."
     default: "main"
+  atropos-repo:
+    description: "Git URL for the Atropos taint-model catalog."
+    default: "https://github.com/UnboundCompute/atropos"
+  atropos-ref:
+    description: "Branch, tag, or SHA of Atropos to use. Pin a tag or SHA for reproducibility."
+    default: "main"
   analyze-args:
     description: "Extra flags passed to lachesis-analyze. Kept light by default."
     default: "--prune --incremental"
@@ -82,6 +88,18 @@ runs:
         python3 "$SRC/tools/vendor_typescript.py"
         python3 -m pip install "$SRC"
 
+    - name: Install Atropos catalog
+      id: install-atropos
+      shell: bash
+      run: |
+        CATALOG="$RUNNER_TEMP/atropos"
+        rm -rf "$CATALOG"
+        git clone --depth 1 --branch "${{ inputs.atropos-ref }}" \
+          "${{ inputs.atropos-repo }}" "$CATALOG"
+        python3 "$CATALOG/tools/validate.py"
+        echo "ATROPOS_ROOT=$CATALOG" >> "$GITHUB_ENV"
+        echo "catalog_sha=$(git -C "$CATALOG" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
     - name: Restore frontend cache
       uses: actions/cache@v4
       with:
@@ -89,7 +107,7 @@ runs:
           graph_out/frontends
           ${{ runner.temp }}/lachesis.kuzu
           ${{ runner.temp }}/lachesis.kuzu.enriched
-        key: lachesis-graph-${{ runner.os }}-${{ steps.toolchain.outputs.fingerprint }}-${{ steps.install-lachesis.outputs.engine_sha }}-${{ hashFiles('**/*.c', '**/*.h', '**/*.cc', '**/*.cpp', '**/*.py', '**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
+        key: lachesis-graph-${{ runner.os }}-${{ steps.toolchain.outputs.fingerprint }}-${{ steps.install-lachesis.outputs.engine_sha }}-${{ steps.install-atropos.outputs.catalog_sha }}-${{ hashFiles('**/*.c', '**/*.h', '**/*.cc', '**/*.cpp', '**/*.py', '**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
         save-always: true
 
     - name: Build graph

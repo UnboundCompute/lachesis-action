@@ -104,6 +104,8 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `analyze-args` | `--prune --incremental` | Flags for the graph build. |
 | `c-jobs` | empty (adaptive) | Optional Clang frontend concurrency override; use `1` to cap memory or `2` for a measured medium-tree runner. |
 | `lachesis-ref` | `main` | Branch/tag/SHA of the Lachesis engine to install. Pin for reproducibility. |
+| `atropos-repo` | `https://github.com/UnboundCompute/atropos` | Atropos catalog repository to load. |
+| `atropos-ref` | `main` | Branch/tag/SHA of Atropos. Pin a tag or commit for reproducible findings. |
 | `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. |
 | `upload` | `true` | Upload SARIF to code scanning. |
 | `sarif-file` | `lachesis.sarif` | Output path. |
@@ -118,11 +120,14 @@ rollback guidance are in [`RELEASING.md`](./RELEASING.md).
 ## How it works
 
 1. Installs the [Lachesis engine](https://github.com/UnboundCompute/lachesis) (clones and vendors its TypeScript frontend, pure Python, no `npm`).
-2. Restores the incremental frontend bundles when the source and engine ref match, then
+2. Installs and validates the [Atropos catalog](https://github.com/UnboundCompute/atropos),
+   exporting `ATROPOS_ROOT` so model binding is explicit rather than dependent on a
+   sibling checkout.
+3. Restores the incremental frontend bundles when the source, engine, and catalog refs match, then
    builds a light pruned graph; the data-flow tier folds lazily. The cache is only a
    compile reuse hint: Lachesis still validates file digests and output-affecting flags.
-3. Traces every source-to-sink path, classifies its guard status, and renders SARIF.
-4. Uploads to GitHub code scanning.
+4. Traces every source-to-sink path, classifies its guard status, and renders SARIF.
+5. Uploads to GitHub code scanning.
 
 No code leaves your runner. No account. No API key.
 
