@@ -6,6 +6,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 - Added a `make check` developer gate; CI, release verification, and contributor
   instructions now use the same command.
+- Added contributor guidance covering the local gate, pinned workflow refs, and
+  release-safe Action changes.
 - Action preflight now rejects empty Lachesis and Atropos refs before starting
   network checkouts.
 - Ref validation also rejects option-like or whitespace-containing values before
