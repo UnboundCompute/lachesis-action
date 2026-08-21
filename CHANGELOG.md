@@ -4,6 +4,11 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+## [1.0.2]
+
+- Document release-tag-only engine and catalog inputs and use the current reviewed
+  release tags in the example workflow.
+
 ## [1.0.1]
 
 - Release the merged `main` tag-reference and production-readiness updates.
