@@ -4,6 +4,10 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+## [1.0.1]
+
+- Release the merged `main` tag-reference and production-readiness updates.
+
 - Added a machine-readable `VERSION` file; release CI now checks semantic tags against
   it and prevents a major tag from crossing release lines.
 - The local Action gate now checks that `VERSION` and the stable changelog heading stay
