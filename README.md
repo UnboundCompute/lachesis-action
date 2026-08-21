@@ -113,6 +113,11 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `upload` | `true` | Upload SARIF to code scanning. |
 | `sarif-file` | `lachesis.sarif` | Output path. |
 
+The Action validates its resource limits, output path, boolean/threshold values, and
+quoted analyzer arguments before cloning or installing anything. Invalid configuration
+fails with exit code 2 and an actionable message, so a misconfigured workflow does not
+spend runner time on a partial scan.
+
 ## Reproducible production use
 
 Pin `lachesis-ref` to an immutable Lachesis release tag or commit SHA in production
