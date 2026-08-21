@@ -8,6 +8,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   transfer and checkout cost while retaining branch, tag, and SHA inputs.
 - Pin the Action's own workflows and published usage examples to the v1.0.0
   release commit; mutable major tags remain an explicit opt-in.
+- Validate Action inputs before installing the engine so malformed thresholds,
+  resource limits, paths, or analyzer quoting fail fast with actionable errors.
 - Hardened configurable inputs, dependency checkouts, cache invalidation, and
   partial-clone fallback behavior for production runners.
 

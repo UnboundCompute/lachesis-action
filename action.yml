@@ -51,6 +51,17 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Validate inputs
+      shell: bash
+      env:
+        LACHESIS_UPLOAD: ${{ inputs.upload }}
+        LACHESIS_FAIL_ON: ${{ inputs.fail-on }}
+        LACHESIS_KUZU_BUFFER_POOL_SIZE: ${{ inputs.kuzu-buffer-pool-size }}
+        LACHESIS_C_JOBS: ${{ inputs.c-jobs }}
+        LACHESIS_ANALYZE_ARGS: ${{ inputs.analyze-args }}
+        LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+      run: python3 "$GITHUB_ACTION_PATH/validate_inputs.py"
+
     - name: Set up Python
       uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
       with:
