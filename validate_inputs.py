@@ -56,10 +56,11 @@ def validate(
     elif not Path(source).is_dir():
         errors.append(f"source directory does not exist: {source}")
 
-    if not lachesis_ref.strip():
-        errors.append("lachesis-ref must not be empty")
-    if not atropos_ref.strip():
-        errors.append("atropos-ref must not be empty")
+    for label, ref in (("lachesis-ref", lachesis_ref), ("atropos-ref", atropos_ref)):
+        if not ref.strip():
+            errors.append(f"{label} must not be empty")
+        elif ref.startswith("-") or any(char.isspace() for char in ref):
+            errors.append(f"{label} must be a single Git ref (no leading '-' or whitespace)")
 
     return errors
 

@@ -59,6 +59,15 @@ class ValidateInputsTests(unittest.TestCase):
         self.assertIn("lachesis-ref must not be empty", errors)
         self.assertIn("atropos-ref must not be empty", errors)
 
+    def test_rejects_option_like_or_whitespace_refs(self):
+        errors = validate(
+            upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",
+            analyze_args="", sarif_file="report.sarif", source=".",
+            lachesis_ref="--help", atropos_ref="feature branch",
+        )
+        self.assertEqual(2, len(errors))
+        self.assertTrue(all("single Git ref" in error for error in errors))
+
 
 if __name__ == "__main__":
     unittest.main()
