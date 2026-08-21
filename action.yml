@@ -111,7 +111,6 @@ runs:
           ${{ runner.temp }}/lachesis.kuzu
           ${{ runner.temp }}/lachesis.kuzu.enriched
         key: lachesis-graph-${{ runner.os }}-${{ steps.toolchain.outputs.fingerprint }}-${{ steps.install-lachesis.outputs.engine_sha }}-${{ steps.install-atropos.outputs.catalog_sha }}-${{ hashFiles('**/*.c', '**/*.h', '**/*.cc', '**/*.cpp', '**/*.py', '**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx', '**/tsconfig*.json', '**/package.json', '**/pyproject.toml', '**/lachesis.toml') }}
-        save-always: true
 
     - name: Build graph
       shell: bash
