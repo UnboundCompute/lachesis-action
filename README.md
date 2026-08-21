@@ -108,6 +108,13 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `upload` | `true` | Upload SARIF to code scanning. |
 | `sarif-file` | `lachesis.sarif` | Output path. |
 
+## Reproducible production use
+
+Pin `lachesis-ref` to an immutable Lachesis release tag or commit SHA in production
+workflows. The default `main` ref is intended for development and follows engine
+changes. The Action itself is released under its own `v1` tag; release verification and
+rollback guidance are in [`RELEASING.md`](./RELEASING.md).
+
 ## How it works
 
 1. Installs the [Lachesis engine](https://github.com/UnboundCompute/lachesis) (clones and vendors its TypeScript frontend, pure Python, no `npm`).
