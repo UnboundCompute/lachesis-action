@@ -94,8 +94,8 @@ runs:
       run: |
         CATALOG="$RUNNER_TEMP/atropos"
         rm -rf "$CATALOG"
-        git clone --depth 1 --branch "${{ inputs.atropos-ref }}" \
-          "${{ inputs.atropos-repo }}" "$CATALOG"
+        git clone "${{ inputs.atropos-repo }}" "$CATALOG"
+        git -C "$CATALOG" checkout "${{ inputs.atropos-ref }}"
         python3 "$CATALOG/tools/validate.py"
         echo "ATROPOS_ROOT=$CATALOG" >> "$GITHUB_ENV"
         echo "catalog_sha=$(git -C "$CATALOG" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
