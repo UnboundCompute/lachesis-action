@@ -74,7 +74,7 @@ jobs:
       security-events: write   # required to upload SARIF to code scanning
     steps:
       - uses: actions/checkout@v4
-      - uses: UnboundCompute/lachesis-action@v1
+      - uses: UnboundCompute/lachesis-action@v1.0.1
         with:
           source: "."
 ```
@@ -112,9 +112,9 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `frontend-timeout` | `300` | Maximum seconds for one Lachesis frontend invocation. |
 | `query-timeout` | `300` | Maximum seconds for one SARIF graph query. |
 | `build-timeout` | `1800` | Maximum seconds for the complete graph build. |
-| `lachesis-ref` | `main` | Branch/tag/SHA of the Lachesis engine to install. Pin for reproducibility. |
+| `lachesis-ref` | `main` | Lachesis release tag to install. Use a reviewed tag for reproducibility. |
 | `atropos-repo` | `https://github.com/UnboundCompute/atropos` | Atropos catalog repository to load. |
-| `atropos-ref` | `main` | Branch/tag/SHA of Atropos. Pin a tag or commit for reproducible findings. |
+| `atropos-ref` | `main` | Atropos release tag. Use a reviewed tag for reproducible findings. |
 | `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. Other values fail configuration validation. |
 | `upload` | `true` | Upload SARIF to code scanning. |
 | `sarif-file` | `lachesis.sarif` | Output path. |
