@@ -4,6 +4,9 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+- Corrected the example workflow so its optional `lachesis-ref` does not suggest
+  the Action's `v1.0.0` tag as an engine release; consumers must provide an actual
+  immutable engine tag or commit SHA.
 - Engine and catalog Git checkouts now disable terminal credential prompts so a
   missing credential fails fast instead of hanging a CI runner.
 - SARIF path normalization now preserves hidden files and parent components while
