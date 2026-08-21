@@ -84,7 +84,9 @@ runs:
       run: |
         SRC="$RUNNER_TEMP/lachesis-src"
         rm -rf "$SRC"
-        git clone "${{ inputs.lachesis-repo }}" "$SRC"           # full clone: ref may be a branch, tag, or SHA
+        # Keep ref flexibility (branch, tag, or SHA) without transferring every
+        # blob in the engine history. Checkout fetches only the selected tree.
+        git clone --filter=blob:none --no-checkout "${{ inputs.lachesis-repo }}" "$SRC"
         git -C "$SRC" checkout "${{ inputs.lachesis-ref }}"
         echo "engine_sha=$(git -C "$SRC" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
         python3 -m pip install --upgrade pip
@@ -97,7 +99,7 @@ runs:
       run: |
         CATALOG="$RUNNER_TEMP/atropos"
         rm -rf "$CATALOG"
-        git clone "${{ inputs.atropos-repo }}" "$CATALOG"
+        git clone --filter=blob:none --no-checkout "${{ inputs.atropos-repo }}" "$CATALOG"
         git -C "$CATALOG" checkout "${{ inputs.atropos-ref }}"
         python3 "$CATALOG/tools/validate.py"
         echo "ATROPOS_ROOT=$CATALOG" >> "$GITHUB_ENV"

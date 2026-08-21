@@ -122,8 +122,8 @@ rollback guidance are in [`RELEASING.md`](./RELEASING.md).
 
 ## How it works
 
-1. Installs the [Lachesis engine](https://github.com/UnboundCompute/lachesis) (clones and vendors its TypeScript frontend, pure Python, no `npm`).
-2. Installs and validates the [Atropos catalog](https://github.com/UnboundCompute/atropos),
+1. Installs the [Lachesis engine](https://github.com/UnboundCompute/lachesis) (uses a blob-filtered checkout, then vendors its TypeScript frontend; pure Python, no `npm`).
+2. Installs and validates the [Atropos catalog](https://github.com/UnboundCompute/atropos) from a blob-filtered checkout,
    exporting `ATROPOS_ROOT` so model binding is explicit rather than dependent on a
    sibling checkout.
 3. Restores the incremental frontend bundles when the source, engine, and catalog refs match, then
