@@ -10,6 +10,8 @@ Everything runs on your own runner.
 [![Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-Lachesis-8250df?logo=github)](https://github.com/marketplace/actions/lachesis-security-scan)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
 
+Security reporting guidance is in [`SECURITY.md`](./SECURITY.md).
+
 ---
 
 ## Why it's different
