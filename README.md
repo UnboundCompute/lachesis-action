@@ -107,7 +107,7 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `lachesis-ref` | `main` | Branch/tag/SHA of the Lachesis engine to install. Pin for reproducibility. |
 | `atropos-repo` | `https://github.com/UnboundCompute/atropos` | Atropos catalog repository to load. |
 | `atropos-ref` | `main` | Branch/tag/SHA of Atropos. Pin a tag or commit for reproducible findings. |
-| `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. |
+| `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. Other values fail configuration validation. |
 | `upload` | `true` | Upload SARIF to code scanning. |
 | `sarif-file` | `lachesis.sarif` | Output path. |
 

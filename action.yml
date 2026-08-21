@@ -157,7 +157,10 @@ runs:
         import json, sys
         order = {"note": 1, "warning": 2, "error": 3}
         sarif_file, threshold = sys.argv[1], sys.argv[2]
-        gate = order.get(threshold, 3)
+        if threshold not in order:
+            print(f"lachesis: invalid fail-on value {threshold!r}; expected none, note, warning, or error")
+            sys.exit(2)
+        gate = order[threshold]
         results = json.load(open(sarif_file))["runs"][0]["results"]
         hits = [r for r in results if order.get(r.get("level", "warning"), 2) >= gate]
         if hits:
