@@ -17,7 +17,7 @@ workflow on that interpreter before publishing a tag.
 Run the dependency-free SARIF tests:
 
 ```bash
-python3 -m unittest test_sarif_export.py
+python3 -m unittest discover -s . -p 'test*.py'
 ```
 
 For a release candidate, run the example workflow against a pinned Lachesis commit and

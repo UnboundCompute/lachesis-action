@@ -10,6 +10,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   release commit; mutable major tags remain an explicit opt-in.
 - Validate Action inputs before installing the engine so malformed thresholds,
   resource limits, paths, or analyzer quoting fail fast with actionable errors.
+- Run the complete dependency-free test suite in CI, release verification, and the
+  release checklist rather than only the SARIF exporter test.
 - Hardened configurable inputs, dependency checkouts, cache invalidation, and
   partial-clone fallback behavior for production runners.
 

@@ -34,7 +34,7 @@ jobs:
           PY
       - name: Validate metadata and tests
         run: |
-          python3 -m unittest test_sarif_export.py
+          python3 -m unittest discover -s . -p 'test*.py'
           python3 - <<'PY'
           from pathlib import Path
           text = Path("action.yml").read_text()
