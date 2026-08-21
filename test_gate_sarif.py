@@ -1,4 +1,6 @@
 import json
+import contextlib
+import io
 import tempfile
 import unittest
 from pathlib import Path
@@ -27,7 +29,8 @@ class GateSarifTests(unittest.TestCase):
             findings_at_or_above(path, "warning")
 
     def test_main_returns_configuration_error(self):
-        self.assertEqual(2, main(["missing.sarif", "fatal"]))
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(2, main(["missing.sarif", "fatal"]))
 
 
 if __name__ == "__main__":
