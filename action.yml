@@ -77,9 +77,10 @@ runs:
 
     - name: Install Lachesis (from source)
       id: install-lachesis
-      # Until lachesis-cpg is on PyPI, install from GitHub. The TypeScript compiler
-      # is a build artifact absent from the repo, so vendor it FIRST (a pure-Python
-      # fetch, no npm), then it gets packaged into the install.
+      # Install the selected engine ref from source so production workflows can pin
+      # an exact commit and development workflows can test unreleased changes. The
+      # TypeScript compiler is a build artifact absent from the repo, so vendor it
+      # FIRST (a pure-Python fetch, no npm), then it gets packaged into the install.
       shell: bash
       env:
         LACHESIS_REPO_URL: ${{ inputs.lachesis-repo }}
