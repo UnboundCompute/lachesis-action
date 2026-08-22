@@ -3,9 +3,9 @@
 **Find the endpoint that forgot the authorization check, the one its sibling remembered.**
 
 A GitHub Action that builds a compiler-precise code property graph of your repo,
-traces untrusted input to dangerous sinks, and reports what it finds straight into
-**GitHub code scanning**: inline on the PR, no bot comments, no hosted service.
-Everything runs on your own runner.
+traces untrusted input to dangerous sinks, and posts what it finds straight onto
+the pull request as **Lachesis[bot]** — inline on the changed lines, leveled by
+guard status. The analysis runs entirely on your own runner.
 
 [![Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-Lachesis-8250df?logo=github)](https://github.com/marketplace/actions/lachesis-security-scan)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
@@ -52,41 +52,43 @@ differential_siblings: ["getInvoice"]
   getInvoice guards the identical sink; getDocument does not.
 ```
 
-The Action runs exactly this on every PR and reports the `UNGUARDED` sibling into
-code scanning as an `error`.
+The Action runs exactly this on every PR and posts the `UNGUARDED` sibling as an
+`error` comment on the offending line, signed by **Lachesis[bot]**.
 
 ## Quickstart
 
-Add `.github/workflows/lachesis.yml` to your repo:
+Two things are needed: install the **Lachesis GitHub App** on the repo (or org),
+then add the workflow.
+
+1. Install the app: **[github.com/apps/lachesis](https://github.com/apps/lachesis)** →
+   *Install* → pick the repos it may comment on.
+2. Add `.github/workflows/lachesis.yml`:
 
 ```yaml
 name: lachesis
 on:
   pull_request:
-  push:
-    branches: [main]
 
 jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write   # required to upload SARIF to code scanning
+      id-token: write          # lets the action prove the repo to the Lachesis app
     steps:
       - uses: actions/checkout@v4
-      - uses: UnboundCompute/lachesis-action@v1.0.1
+      - uses: UnboundCompute/lachesis-action@v1.0.3
         with:
           source: "."
 ```
 
-Open a PR and the findings appear under **Security > Code scanning**. Merge to
-`main` once to establish the baseline, and future PRs get inline annotations on the
-lines they change.
+Open a PR and the findings appear as inline comments from **Lachesis[bot]** on the
+lines they touch, with a summary at the top of the review.
 
 ## What you get
 
-Each tainted source-to-sink path becomes one code-scanning result, anchored at the
-sink, carrying the full data-flow as a navigable code flow, and leveled by guard status:
+Each tainted source-to-sink path becomes one PR comment, anchored at the sink,
+carrying the data-flow that reaches it, and leveled by guard status:
 
 | Level | Rule | Meaning |
 |---|---|---|
@@ -116,13 +118,11 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `atropos-repo` | `https://github.com/UnboundCompute/atropos` | Atropos catalog repository to load. |
 | `atropos-ref` | `main` | Atropos release tag. Use a reviewed tag for reproducible findings. |
 | `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. Other values fail configuration validation. |
-| `upload` | `true` | Upload SARIF to code scanning. |
-| `sarif-file` | `lachesis.sarif` | Output path. |
-| `branded-comments` | `false` | Also post findings on the PR as **Lachesis[bot]** via the hosted poster (opt-in; see below). |
-| `report-endpoint` | `` | Hosted poster URL used when `branded-comments` is true. |
+| `sarif-file` | `lachesis.sarif` | Output path for the intermediate SARIF report. |
+| `report-endpoint` | `` | Hosted Lachesis poster URL. Leave at the default unless you self-host the poster. |
 | `oidc-audience` | `lachesis-bot` | Audience requested for the OIDC token; must match the poster. |
 
-The Action validates its resource limits, output path, boolean/threshold values, and
+The Action validates its resource limits, output path, threshold values, and
 quoted analyzer arguments before cloning or installing anything. Invalid configuration
 fails with exit code 2 and an actionable message, so a misconfigured workflow does not
 spend runner time on a partial scan.
@@ -131,29 +131,20 @@ Dependency installation is noninteractive and uses bounded network behavior: Git
 transfers below 1,000 bytes/second for 60 seconds, and pip uses a 60-second socket
 timeout. Credential prompts and pip's version-check request cannot leave a runner waiting.
 
-## Branded PR comments (optional)
+## How posting works
 
-By default findings arrive through GitHub code scanning, posted by GitHub's own
-`github-advanced-security[bot]`. If you'd rather they appear as **Lachesis[bot]**
-inline on the PR, opt in:
+The scan runs entirely in your CI. When it finds something, the action requests a
+short-lived GitHub Actions **OIDC token** (this is why the workflow needs
+`permissions: id-token: write`) and sends the SARIF plus the PR context to the
+hosted Lachesis poster. The poster verifies the token proves the run really came
+from your repository, then posts the review as the **Lachesis GitHub App**.
 
-```yaml
-    permissions:
-      contents: read
-      security-events: write
-      id-token: write            # lets the action prove the repo to the poster
-    steps:
-      - uses: actions/checkout@v4
-      - uses: UnboundCompute/lachesis-action@v1.0.3
-        with:
-          branded-comments: "true"
-```
-
-This requires the **Lachesis GitHub App** installed on the repo. The action
-requests a short-lived OIDC token and sends the SARIF to the hosted poster,
-which verifies the token and posts as the app. No secrets leave your CI; the
-scan itself still runs entirely in your runner. Branded comments are additive —
-code scanning still works as before, so you can run either or both.
+Only the findings leave your runner — the SARIF report and the PR number, over
+which the poster has write access solely to comment. No source checkout, no API
+key of yours, and no long-lived secret is sent; the app's own credentials never
+touch your CI. If the poster is unreachable the step warns and the run continues,
+so posting never blocks your pipeline (the `fail-on` gate reads the SARIF locally,
+independent of posting).
 
 ## Reproducible production use
 
@@ -173,9 +164,9 @@ rollback guidance are in [`RELEASING.md`](./RELEASING.md).
    builds a light pruned graph; the data-flow tier folds lazily. The cache is only a
    compile reuse hint: Lachesis still validates file digests and output-affecting flags.
 4. Traces every source-to-sink path, classifies its guard status, and renders SARIF.
-5. Uploads to GitHub code scanning.
+5. Posts the findings on the PR as **Lachesis[bot]** via the hosted poster.
 
-No code leaves your runner. No account. No API key.
+The analysis stays on your runner; only the findings are sent onward to be posted.
 
 ## Add the badge to your repo
 

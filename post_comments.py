@@ -19,9 +19,9 @@ import urllib.request
 
 
 def _fail(msg: str) -> "None":
-    print(f"::warning title=Lachesis branded comments::{msg}")
-    # Non-fatal: branded comments are an add-on, not the gate. Exit 0 so the
-    # scan result (and the code-scanning upload) still stands.
+    print(f"::warning title=Lachesis PR comments::{msg}")
+    # Non-fatal: posting is delivery, not the gate. The fail-on gate reads the
+    # SARIF file directly in a later step, so it still stands if posting fails.
     sys.exit(0)
 
 

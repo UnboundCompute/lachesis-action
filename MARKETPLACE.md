@@ -38,7 +38,7 @@ Consumers should use the reviewed release tag
 
 - **Name:** Lachesis Security Scan
 - **Tagline (≤125 chars):** Trace untrusted input to sinks and catch the endpoint
-  that forgot the authorization check, inline in GitHub code scanning.
+  that forgot the authorization check, posted inline on the PR as Lachesis[bot].
 - **Description:** see `README.md` (rendered as the listing body).
 
 ## Discoverability checklist

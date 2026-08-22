@@ -4,7 +4,8 @@
 v1. This is a thin, dependency-free renderer: it drives the existing
 `lachesis-query` CLI (nothing private, no new engine) and maps the
 source-to-sink paths and guard verdicts it already computes onto SARIF
-results that GitHub code scanning renders inline on a PR.
+results. The hosted poster consumes this SARIF and renders it as inline
+PR comments signed by the Lachesis GitHub App.
 
     python3 action/sarif_export.py graph.kuzu -o lachesis.sarif
 

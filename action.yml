@@ -1,5 +1,5 @@
 name: "Lachesis Security Scan"
-description: "Trace untrusted input to sinks and catch the endpoint that forgot the authorization check, inline in GitHub code scanning."
+description: "Trace untrusted input to sinks and catch the endpoint that forgot the authorization check, posted inline on the PR as Lachesis[bot]."
 branding:
   icon: "git-branch"
   color: "purple"
@@ -50,20 +50,14 @@ inputs:
   exclude:
     description: "Optional space/comma-separated paths/globs; findings under these (e.g. a fixtures or vendor dir) are dropped."
     default: ""
-  upload:
-    description: "Upload the SARIF to GitHub code scanning (needs security-events: write)."
-    default: "true"
   fail-on:
     description: "Fail the step if any finding is at this level or above: none | note | warning | error."
     default: "none"
-  branded-comments:
-    description: >
-      Post findings on the pull request as the Lachesis GitHub App (Lachesis[bot])
-      via the hosted poster. Requires 'permissions: id-token: write' in the calling
-      workflow and the Lachesis app installed on the repo. Runs only on pull_request.
-    default: "false"
   report-endpoint:
-    description: "Hosted Lachesis poster URL used when branded-comments is true."
+    description: >
+      Hosted Lachesis poster URL. Findings are posted on the pull request as the
+      Lachesis GitHub App (Lachesis[bot]). Requires 'permissions: id-token: write'
+      in the calling workflow and the Lachesis app installed on the repo.
     default: ""
   oidc-audience:
     description: "Audience requested for the OIDC token; must match the poster's configured audience."
@@ -75,7 +69,6 @@ runs:
     - name: Validate inputs
       shell: bash
       env:
-        LACHESIS_UPLOAD: ${{ inputs.upload }}
         LACHESIS_FAIL_ON: ${{ inputs.fail-on }}
         LACHESIS_KUZU_BUFFER_POOL_SIZE: ${{ inputs.kuzu-buffer-pool-size }}
         LACHESIS_C_JOBS: ${{ inputs.c-jobs }}
@@ -278,17 +271,11 @@ runs:
           -o "$LACHESIS_SARIF_FILE" \
           "${ARGS[@]}"
 
-    - name: Upload to code scanning
-      if: ${{ inputs.upload == 'true' }}
-      uses: github/codeql-action/upload-sarif@v3
-      with:
-        sarif_file: ${{ inputs.sarif-file }}
-
-    - name: Post branded PR comments (Lachesis[bot])
-      # Deliver findings as the Lachesis GitHub App instead of the code-scanning
-      # bot. Only meaningful on pull_request, and only when the caller opted in
-      # and granted id-token: write so we can prove the repo to the poster.
-      if: ${{ inputs.branded-comments == 'true' && github.event_name == 'pull_request' }}
+    - name: Post PR comments (Lachesis[bot])
+      # Deliver findings as the Lachesis GitHub App. Only meaningful on
+      # pull_request; needs id-token: write so we can prove the repo to the
+      # poster, and a report-endpoint pointing at the hosted poster.
+      if: ${{ github.event_name == 'pull_request' }}
       shell: bash
       env:
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}

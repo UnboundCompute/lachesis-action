@@ -4,6 +4,13 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+- Deliver findings as inline pull-request comments from the Lachesis GitHub App
+  (**Lachesis[bot]**) via the hosted poster, using a short-lived GitHub Actions OIDC
+  token to prove the run's repository. This replaces the GitHub code-scanning upload
+  as the single delivery path.
+- Remove the `upload` and `branded-comments` inputs; the workflow now requires
+  `permissions: id-token: write` instead of `security-events: write`.
+
 ## [1.0.3]
 
 - Update the example-workflow regression test for the current reviewed Lachesis tag.
