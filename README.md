@@ -78,7 +78,7 @@ jobs:
       id-token: write          # lets the action prove the repo to the Lachesis app
     steps:
       - uses: actions/checkout@v4
-      - uses: UnboundCompute/lachesis-action@v1.0.3
+      - uses: UnboundCompute/lachesis-action@v1.0.4
         with:
           source: "."
           fail-on: "error"     # optional: fail the check on guard differentials
