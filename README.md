@@ -60,8 +60,9 @@ The Action runs exactly this on every PR and posts the `UNGUARDED` sibling as an
 Two things are needed: install the **Lachesis GitHub App** on the repo (or org),
 then add the workflow.
 
-1. Install the app: **[github.com/apps/lachesis](https://github.com/apps/lachesis)** →
-   *Install* → pick the repos it may comment on.
+1. Install the app: **[github.com/apps/lachesis-security](https://github.com/apps/lachesis-security)** →
+   click **Install** → pick the repos it may comment on. (This is the one-time step
+   that gives the bot permission to post; the scan itself still runs in your CI.)
 2. Add `.github/workflows/lachesis.yml`:
 
 ```yaml
@@ -80,10 +81,19 @@ jobs:
       - uses: UnboundCompute/lachesis-action@v1.0.3
         with:
           source: "."
+          fail-on: "error"     # optional: fail the check on guard differentials
 ```
 
 Open a PR and the findings appear as inline comments from **Lachesis[bot]** on the
 lines they touch, with a summary at the top of the review.
+
+### Blocking merge on findings
+
+`fail-on` makes the scan **job** fail at or above a level (`note` / `warning` /
+`error`) — the bot still posts its comments first, then the check turns red. A red
+check only *blocks merge* if you also make the `scan` job a **required status check**
+in the repo's **Settings → Branches → Branch protection** (or a ruleset). Without
+that, `fail-on` is a visible signal but not a gate.
 
 ## What you get
 
