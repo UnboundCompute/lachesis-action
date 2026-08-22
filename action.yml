@@ -56,6 +56,18 @@ inputs:
   fail-on:
     description: "Fail the step if any finding is at this level or above: none | note | warning | error."
     default: "none"
+  branded-comments:
+    description: >
+      Post findings on the pull request as the Lachesis GitHub App (Lachesis[bot])
+      via the hosted poster. Requires 'permissions: id-token: write' in the calling
+      workflow and the Lachesis app installed on the repo. Runs only on pull_request.
+    default: "false"
+  report-endpoint:
+    description: "Hosted Lachesis poster URL used when branded-comments is true."
+    default: ""
+  oidc-audience:
+    description: "Audience requested for the OIDC token; must match the poster's configured audience."
+    default: "lachesis-bot"
 
 runs:
   using: "composite"
@@ -271,6 +283,19 @@ runs:
       uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: ${{ inputs.sarif-file }}
+
+    - name: Post branded PR comments (Lachesis[bot])
+      # Deliver findings as the Lachesis GitHub App instead of the code-scanning
+      # bot. Only meaningful on pull_request, and only when the caller opted in
+      # and granted id-token: write so we can prove the repo to the poster.
+      if: ${{ inputs.branded-comments == 'true' && github.event_name == 'pull_request' }}
+      shell: bash
+      env:
+        LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+        LACHESIS_REPORT_ENDPOINT: ${{ inputs.report-endpoint }}
+        LACHESIS_OIDC_AUDIENCE: ${{ inputs.oidc-audience }}
+        GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+      run: python3 "$GITHUB_ACTION_PATH/post_comments.py" "$LACHESIS_SARIF_FILE"
 
     - name: Gate on findings
       if: ${{ inputs.fail-on != 'none' }}

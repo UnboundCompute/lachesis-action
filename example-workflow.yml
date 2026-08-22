@@ -11,13 +11,17 @@ jobs:
     permissions:
       contents: read
       security-events: write   # required to upload SARIF to code scanning
+      # id-token: write        # required ONLY for branded-comments (Lachesis[bot])
     steps:
       - uses: actions/checkout@v4
 
-      - uses: UnboundCompute/lachesis-action@v1.0.1
+      - uses: UnboundCompute/lachesis-action@v1.0.3
         with:
           source: "."
           # exclude: "test/fixtures vendor"   # drop findings under these paths/globs
           # fail-on: "error"                   # fail the PR on guard differentials
           # lachesis-ref: "v0.1.3" # use a reviewed engine release tag
           # atropos-ref: "v1.7.1" # use a reviewed model-catalog release tag
+          # Post findings on the PR as Lachesis[bot] (needs id-token: write above
+          # and the Lachesis GitHub App installed on the repo):
+          # branded-comments: "true"

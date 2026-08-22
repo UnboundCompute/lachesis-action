@@ -118,6 +118,9 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. Other values fail configuration validation. |
 | `upload` | `true` | Upload SARIF to code scanning. |
 | `sarif-file` | `lachesis.sarif` | Output path. |
+| `branded-comments` | `false` | Also post findings on the PR as **Lachesis[bot]** via the hosted poster (opt-in; see below). |
+| `report-endpoint` | `` | Hosted poster URL used when `branded-comments` is true. |
+| `oidc-audience` | `lachesis-bot` | Audience requested for the OIDC token; must match the poster. |
 
 The Action validates its resource limits, output path, boolean/threshold values, and
 quoted analyzer arguments before cloning or installing anything. Invalid configuration
@@ -127,6 +130,30 @@ spend runner time on a partial scan.
 Dependency installation is noninteractive and uses bounded network behavior: Git aborts
 transfers below 1,000 bytes/second for 60 seconds, and pip uses a 60-second socket
 timeout. Credential prompts and pip's version-check request cannot leave a runner waiting.
+
+## Branded PR comments (optional)
+
+By default findings arrive through GitHub code scanning, posted by GitHub's own
+`github-advanced-security[bot]`. If you'd rather they appear as **Lachesis[bot]**
+inline on the PR, opt in:
+
+```yaml
+    permissions:
+      contents: read
+      security-events: write
+      id-token: write            # lets the action prove the repo to the poster
+    steps:
+      - uses: actions/checkout@v4
+      - uses: UnboundCompute/lachesis-action@v1.0.3
+        with:
+          branded-comments: "true"
+```
+
+This requires the **Lachesis GitHub App** installed on the repo. The action
+requests a short-lived OIDC token and sends the SARIF to the hosted poster,
+which verifies the token and posts as the app. No secrets leave your CI; the
+scan itself still runs entirely in your runner. Branded comments are additive —
+code scanning still works as before, so you can run either or both.
 
 ## Reproducible production use
 
