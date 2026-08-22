@@ -77,7 +77,17 @@ def main() -> None:
             result = json.loads(resp.read() or "{}")
         print(f"lachesis: posted {result.get('posted', '?')} comment(s) as Lachesis[bot]")
     except urllib.error.HTTPError as exc:
-        _fail(f"poster returned {exc.code}: {exc.read().decode(errors='replace')}")
+        detail = exc.read().decode(errors="replace")
+        # The most common setup mistake: the workflow is in place but the app was
+        # never installed, so the poster can't find an installation to comment as.
+        # Turn that into an actionable message instead of a raw 404 dump.
+        if "app_not_installed" in detail or ("/installation" in detail and "404" in detail):
+            _fail(
+                "the Lachesis GitHub App is not installed on this repository, so no "
+                "comments were posted. Install it (one click) at "
+                "https://github.com/apps/lachesis-security and re-run."
+            )
+        _fail(f"poster returned {exc.code}: {detail}")
     except urllib.error.URLError as exc:
         _fail(f"poster unreachable: {exc}")
 
