@@ -57,8 +57,9 @@ inputs:
     description: >
       Hosted Lachesis poster URL. Findings are posted on the pull request as the
       Lachesis GitHub App (Lachesis[bot]). Requires 'permissions: id-token: write'
-      in the calling workflow and the Lachesis app installed on the repo.
-    default: ""
+      in the calling workflow and the Lachesis app installed on the repo. Override
+      only if you self-host the poster.
+    default: "https://klh36ropm2fuyhbmomlhnzxfam0ehwzf.lambda-url.us-east-1.on.aws/"
   oidc-audience:
     description: "Audience requested for the OIDC token; must match the poster's configured audience."
     default: "lachesis-bot"
