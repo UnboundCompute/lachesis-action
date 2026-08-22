@@ -25,17 +25,23 @@ jobs:
 
           version = os.environ["GITHUB_REF_NAME"].removeprefix("v")
           changelog = Path("CHANGELOG.md").read_text(encoding="utf-8")
-          headings = (f"## [{version}]", f"## {version}")
-          if not any(heading in changelog for heading in headings):
-              raise SystemExit(
-                  f"CHANGELOG.md has no release heading for {version}"
-              )
           declared = Path("VERSION").read_text(encoding="utf-8").strip()
-          if version.count(".") == 2 and version != declared:
-              raise SystemExit(f"VERSION declares {declared}, but tag is {version}")
+          is_full = version.count(".") == 2
+
+          # A bare major tag (v1) is a moving pointer, not a release line, so it
+          # never has its own changelog heading — only check it tracks VERSION's
+          # major. Full tags (v1.0.4) must have an exact changelog entry.
+          if is_full:
+              headings = (f"## [{version}]", f"## {version}")
+              if not any(heading in changelog for heading in headings):
+                  raise SystemExit(
+                      f"CHANGELOG.md has no release heading for {version}"
+                  )
+              if version != declared:
+                  raise SystemExit(f"VERSION declares {declared}, but tag is {version}")
           if version.split(".", 1)[0] != declared.split(".", 1)[0]:
               raise SystemExit(f"major tag v{version} does not match VERSION {declared}")
-          print(f"changelog entry: {version}")
+          print(f"changelog checked: {version} (full={is_full})")
           print(f"Action version: {declared}")
           PY
       - name: Validate metadata and tests
