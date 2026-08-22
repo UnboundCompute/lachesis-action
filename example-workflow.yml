@@ -1,23 +1,25 @@
 # Copy this into a consuming repo as .github/workflows/lachesis.yml
+# Requires the Lachesis GitHub App installed on the repo:
+#   https://github.com/apps/lachesis-security
 name: lachesis
 on:
   pull_request:
-  push:
-    branches: [main]
 
 jobs:
   scan:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write   # required to upload SARIF to code scanning
+      id-token: write          # lets the action prove the repo to the Lachesis app
     steps:
       - uses: actions/checkout@v4
 
-      - uses: UnboundCompute/lachesis-action@v1.0.1
+      - uses: UnboundCompute/lachesis-action@v1.0.4
         with:
           source: "."
+          fail-on: "error"                     # fail the check on guard differentials
+          # To BLOCK merge (not just show a red check), also mark the "scan" job a
+          # required status check in the repo's branch protection / rulesets.
           # exclude: "test/fixtures vendor"   # drop findings under these paths/globs
-          # fail-on: "error"                   # fail the PR on guard differentials
           # lachesis-ref: "v0.1.3" # use a reviewed engine release tag
           # atropos-ref: "v1.7.1" # use a reviewed model-catalog release tag

@@ -8,7 +8,6 @@ class ValidateInputsTests(unittest.TestCase):
         self.assertEqual(
             [],
             validate(
-                upload="true",
                 fail_on="none",
                 buffer_pool_size="1073741824",
                 c_jobs="",
@@ -20,7 +19,6 @@ class ValidateInputsTests(unittest.TestCase):
 
     def test_rejects_invalid_values(self):
         errors = validate(
-            upload="yes",
             fail_on="fatal",
             buffer_pool_size="0",
             c_jobs="workers",
@@ -28,13 +26,12 @@ class ValidateInputsTests(unittest.TestCase):
             sarif_file="/path/that/does/not/exist/report.sarif",
             source="/path/that/does/not/exist",
         )
-        self.assertEqual(7, len(errors))
+        self.assertEqual(6, len(errors))
 
     def test_accepts_quoted_analyzer_args(self):
         self.assertEqual(
             [],
             validate(
-                upload="false",
                 fail_on="error",
                 buffer_pool_size="4096",
                 c_jobs="2",
@@ -46,7 +43,6 @@ class ValidateInputsTests(unittest.TestCase):
 
     def test_rejects_empty_dependency_refs(self):
         errors = validate(
-            upload="true",
             fail_on="none",
             buffer_pool_size="4096",
             c_jobs="",
@@ -61,7 +57,7 @@ class ValidateInputsTests(unittest.TestCase):
 
     def test_rejects_option_like_or_whitespace_refs(self):
         errors = validate(
-            upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",
+            fail_on="none", buffer_pool_size="4096", c_jobs="",
             analyze_args="", sarif_file="report.sarif", source=".",
             lachesis_ref="--help", atropos_ref="feature branch",
         )
@@ -70,7 +66,7 @@ class ValidateInputsTests(unittest.TestCase):
 
     def test_rejects_invalid_frontend_timeout(self):
         errors = validate(
-            upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",
+            fail_on="none", buffer_pool_size="4096", c_jobs="",
             analyze_args="", sarif_file="report.sarif", source=".",
             frontend_timeout="0",
         )
@@ -78,7 +74,7 @@ class ValidateInputsTests(unittest.TestCase):
 
     def test_rejects_invalid_query_timeout(self):
         errors = validate(
-            upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",
+            fail_on="none", buffer_pool_size="4096", c_jobs="",
             analyze_args="", sarif_file="report.sarif", source=".",
             query_timeout="0",
         )
@@ -86,7 +82,7 @@ class ValidateInputsTests(unittest.TestCase):
 
     def test_rejects_invalid_build_timeout(self):
         errors = validate(
-            upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",
+            fail_on="none", buffer_pool_size="4096", c_jobs="",
             analyze_args="", sarif_file="report.sarif", source=".",
             build_timeout="0",
         )
@@ -94,7 +90,7 @@ class ValidateInputsTests(unittest.TestCase):
 
     def test_rejects_analyzer_timeout_override(self):
         errors = validate(
-            upload="true", fail_on="none", buffer_pool_size="4096", c_jobs="",
+            fail_on="none", buffer_pool_size="4096", c_jobs="",
             analyze_args="--prune --timeout=999999", sarif_file="report.sarif",
             source=".", frontend_timeout="300",
         )

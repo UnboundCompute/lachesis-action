@@ -3,3 +3,6 @@ __pycache__/
 .DS_Store
 *.kuzu
 lachesis.sarif
+# Never track secrets (app private keys, etc.) in this public repo.
+*.pem
+*.key

@@ -10,7 +10,6 @@ from pathlib import Path
 
 def validate(
     *,
-    upload: str,
     fail_on: str,
     buffer_pool_size: str,
     c_jobs: str,
@@ -24,9 +23,6 @@ def validate(
     build_timeout: str = "1800",
 ) -> list[str]:
     errors: list[str] = []
-
-    if upload not in {"true", "false"}:
-        errors.append("upload must be exactly 'true' or 'false'")
 
     if fail_on not in {"none", "note", "warning", "error"}:
         errors.append("fail-on must be one of: none, note, warning, error")
@@ -79,7 +75,6 @@ def validate(
 
 def main() -> int:
     errors = validate(
-        upload=os.environ.get("LACHESIS_UPLOAD", ""),
         fail_on=os.environ.get("LACHESIS_FAIL_ON", ""),
         buffer_pool_size=os.environ.get("LACHESIS_KUZU_BUFFER_POOL_SIZE", ""),
         c_jobs=os.environ.get("LACHESIS_C_JOBS", ""),
