@@ -238,15 +238,26 @@ def build_sarif(
 ) -> Dict[str, Any]:
     results: List[Dict[str, Any]] = []
     used_rules: Dict[str, Dict[str, str]] = {}
+    # One taint sink can be reached by many distinct witness paths, so the query
+    # yields several path slices that anchor to the same (rule, file, line) with
+    # the same message. Emitting each as its own SARIF result would post a stack
+    # of identical PR comments on one line. Collapse them to the first occurrence;
+    # a genuinely different finding differs by rule, file, or line.
+    seen: set = set()
     for entry in collect_paths(query_cmd, graph, timeout=query_timeout):
         res = build_result(entry["pq"], entry["detail"], repo_root)
         if res is None:
             continue
-        uri = res["locations"][0]["physicalLocation"]["artifactLocation"]["uri"]
+        loc = res["locations"][0]["physicalLocation"]
+        uri = loc["artifactLocation"]["uri"]
         if changed is not None and uri not in changed:
             continue
         if is_excluded(uri, excluded):
             continue
+        anchor = (res["ruleId"], uri, loc.get("region", {}).get("startLine"))
+        if anchor in seen:
+            continue
+        seen.add(anchor)
         results.append(res)
         for meta in RULES.values():
             if meta["id"] == res["ruleId"]:

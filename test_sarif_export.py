@@ -77,6 +77,40 @@ class SarifExportTests(unittest.TestCase):
         self.assertEqual("path-1", result["partialFingerprints"]["lachesisPathId"])
         self.assertEqual(2, len(result["codeFlows"][0]["threadFlows"][0]["locations"]))
 
+    def test_build_sarif_dedupes_same_rule_file_and_line(self):
+        # One sink reached by two distinct witness paths -> two path slices that
+        # anchor to the same (rule, file, line). They must collapse to a single
+        # SARIF result so the bot posts one comment, not a stack of identical ones.
+        def entry(path_id):
+            return {
+                "pq": {"id": path_id, "label": "request -> query"},
+                "detail": {
+                    "summary": {"guard": {
+                        "status": "GUARDED", "differential_siblings": [],
+                        "handler_label": "audit_lookup", "sink_names": ["execute"],
+                        "file": "app/routes/reports.py", "line": 52,
+                    }},
+                    "sections": {"path": [
+                        {"kind": "source", "label": "request", "locator": {
+                            "location": {"absolute_file": "/repo/app/routes/reports.py", "start_line": 46},
+                        }},
+                        {"kind": "sink", "label": "execute", "locator": {
+                            "location": {"absolute_file": "/repo/app/routes/reports.py", "start_line": 52},
+                        }},
+                    ]},
+                },
+            }
+        with mock.patch.object(
+            sarif_export, "collect_paths",
+            return_value=[entry("path-a"), entry("path-b"), entry("path-c")],
+        ):
+            sarif = sarif_export.build_sarif("graph.kuzu", ["q"], "/repo", None)
+        results = sarif["runs"][0]["results"]
+        self.assertEqual(1, len(results))
+        loc = results[0]["locations"][0]["physicalLocation"]
+        self.assertEqual("app/routes/reports.py", loc["artifactLocation"]["uri"])
+        self.assertEqual(52, loc["region"]["startLine"])
+
 
 if __name__ == "__main__":
     unittest.main()
