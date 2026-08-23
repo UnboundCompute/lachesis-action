@@ -32,14 +32,9 @@ ranks as an `error`:
 
 ## Watch it work
 
-<video src="https://raw.githubusercontent.com/UnboundCompute/lachesis-action/main/demo/lachesis-demo.mp4" poster="https://raw.githubusercontent.com/UnboundCompute/lachesis-action/main/demo/lachesis-demo-poster.png" controls muted loop playsinline width="100%"></video>
+[![Watch the 55-second Lachesis walkthrough](https://raw.githubusercontent.com/UnboundCompute/lachesis-action/main/demo/lachesis-demo-poster.png)](https://unboundcompute.com/lachesis.html)
 
-[![Lachesis posts five inline findings on a live pull request](demo/lachesis-demo-poster.png)](https://github.com/UnboundCompute/lachesis-action-demo/pull/5)
-
-A 55-second walkthrough on a real pull request: a Flask control plane where three
-handlers reach the same SQL sink unguarded while two siblings authorize first. The
-Action posts five inline comments — three guard-differential **errors** and two
-guarded **notes** — [**see them live on the pull request →**](https://github.com/UnboundCompute/lachesis-action-demo/pull/5)
+▶ **[Play the 55-second walkthrough](https://unboundcompute.com/lachesis.html)** — a real pull request on a Flask control plane where three handlers reach the same SQL sink unguarded while two siblings authorize first. The Action posts five inline comments — three guard-differential **errors** and two guarded **notes** — [**see them live on the pull request →**](https://github.com/UnboundCompute/lachesis-action-demo/pull/5)
 
 ## See it find the bug
 
