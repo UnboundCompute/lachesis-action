@@ -4,6 +4,12 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+## [1.0.5]
+
+- De-duplicate inline comments: when one sink is reached by several distinct
+  taint witnesses, the finding is posted once per `(rule, file, line)` instead of
+  once per witness path, so the bot no longer stacks identical comments on a line.
+
 ## [1.0.4]
 
 - Deliver findings as inline pull-request comments from the Lachesis GitHub App
