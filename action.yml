@@ -1,5 +1,5 @@
 name: "Lachesis Security Scan"
-description: "Trace untrusted input to sinks and catch the endpoint that forgot the authorization check, posted inline on the PR as Lachesis[bot]."
+description: "Trace untrusted input to sinks and catch the endpoint that forgot the authorization check, with local SARIF output and optional PR comments."
 branding:
   icon: "git-branch"
   color: "purple"
@@ -70,8 +70,8 @@ inputs:
       only if you self-host the poster.
     default: "https://klh36ropm2fuyhbmomlhnzxfam0ehwzf.lambda-url.us-east-1.on.aws/"
   post-comments:
-    description: "Post hosted Lachesis[bot] PR comments. Set false when using SARIF upload or another reporting path."
-    default: "true"
+    description: "Opt in to hosted Lachesis[bot] PR comments. Keep false for account-free local SARIF and Code Scanning workflows."
+    default: "false"
   oidc-audience:
     description: "Audience requested for the OIDC token; must match the poster's configured audience."
     default: "lachesis-bot"

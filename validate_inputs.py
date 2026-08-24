@@ -22,7 +22,7 @@ def validate(
     query_timeout: str = "300",
     build_timeout: str = "1800",
     candidate_report: str = "none",
-    post_comments: str = "true",
+    post_comments: str = "false",
     baseline_sarif: str = "",
     suppression_file: str = "",
 ) -> list[str]:
@@ -99,7 +99,7 @@ def main() -> int:
         query_timeout=os.environ.get("LACHESIS_QUERY_TIMEOUT", "300"),
         build_timeout=os.environ.get("LACHESIS_BUILD_TIMEOUT", "1800"),
         candidate_report=os.environ.get("LACHESIS_CANDIDATE_REPORT", "none"),
-        post_comments=os.environ.get("LACHESIS_POST_COMMENTS", "true"),
+        post_comments=os.environ.get("LACHESIS_POST_COMMENTS", "false"),
         baseline_sarif=os.environ.get("LACHESIS_BASELINE_SARIF", ""),
         suppression_file=os.environ.get("LACHESIS_SUPPRESSION_FILE", ""),
     )
