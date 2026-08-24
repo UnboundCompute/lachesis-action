@@ -36,14 +36,32 @@ def _key(result: dict[str, Any]) -> tuple[str, str, int | None]:
     return (str(result.get("ruleId", "")), str(artifact.get("uri", "")), region.get("startLine"))
 
 
+def _fingerprint(result: dict[str, Any]) -> str:
+    fingerprints = result.get("partialFingerprints") or {}
+    return str(fingerprints.get("lachesisFinding", ""))
+
+
 def filter_document(current: dict[str, Any], baseline: dict[str, Any]) -> int:
     baseline_keys = {
         _key(result)
         for result in baseline["runs"][0]["results"]
         if isinstance(result, dict)
     }
+    baseline_fingerprints = {
+        fingerprint
+        for result in baseline["runs"][0]["results"]
+        if isinstance(result, dict)
+        for fingerprint in [_fingerprint(result)]
+        if fingerprint
+    }
     results = current["runs"][0]["results"]
-    kept = [result for result in results if not isinstance(result, dict) or _key(result) not in baseline_keys]
+    def is_baselined(result: Any) -> bool:
+        if not isinstance(result, dict):
+            return False
+        fingerprint = _fingerprint(result)
+        return (fingerprint and fingerprint in baseline_fingerprints) or _key(result) in baseline_keys
+
+    kept = [result for result in results if not is_baselined(result)]
     removed = len(results) - len(kept)
     current["runs"][0]["results"] = kept
     current.setdefault("runs", [{}])[0].setdefault("properties", {})["lachesis_baseline_removed"] = removed

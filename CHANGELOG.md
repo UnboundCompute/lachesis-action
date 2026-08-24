@@ -6,6 +6,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 - Add a line-move-stable `lachesisFinding` SARIF fingerprint alongside the exact
   engine path id, enabling downstream finding lifecycle and deduplication.
+- Prefer the stable finding fingerprint when filtering a trusted SARIF baseline,
+  while retaining rule/file/line compatibility with older reports.
 - Add opt-in `candidate-report: census` output for Atropos-backed obligation
   coverage in the GitHub Actions job summary.
 - Expose generated SARIF and candidate-census paths as composite-action outputs so

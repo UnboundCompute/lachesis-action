@@ -10,10 +10,13 @@ def report(results):
     return {"version": "2.1.0", "runs": [{"tool": {"driver": {"name": "test"}}, "results": results}]}
 
 
-def finding(line, rule="lachesis/unguarded-sink"):
-    return {"ruleId": rule, "locations": [{"physicalLocation": {
+def finding(line, rule="lachesis/unguarded-sink", fingerprint=None):
+    result = {"ruleId": rule, "locations": [{"physicalLocation": {
         "artifactLocation": {"uri": "src/app.py"}, "region": {"startLine": line},
     }}]}
+    if fingerprint:
+        result["partialFingerprints"] = {"lachesisFinding": fingerprint}
+    return result
 
 
 class BaselineSarifTests(unittest.TestCase):
@@ -33,6 +36,12 @@ class BaselineSarifTests(unittest.TestCase):
             baseline_path.write_text(json.dumps(report([finding(10)])))
             self.assertEqual(0, main([str(current_path), "--baseline", str(baseline_path)]))
             self.assertEqual(1, len(json.loads(current_path.read_text())["runs"][0]["results"]))
+
+    def test_stable_fingerprint_removes_finding_after_line_move(self):
+        current = report([finding(120, fingerprint="stable-1"), finding(20)])
+        removed = filter_document(current, report([finding(12, fingerprint="stable-1")]))
+        self.assertEqual(1, removed)
+        self.assertEqual([20], [r["locations"][0]["physicalLocation"]["region"]["startLine"] for r in current["runs"][0]["results"]])
 
 
 if __name__ == "__main__":

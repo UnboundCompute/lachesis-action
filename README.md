@@ -121,7 +121,7 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `python-version` | `3.11` | Python runtime for the engine. Override only with a version tested against the Lachesis/Kùzu dependency set. |
 | `kuzu-buffer-pool-size` | `1073741824` | Kùzu buffer-pool ceiling in bytes. Raise it for very large trees; lower it on constrained runners. |
 | `exclude` | `` | Drop findings under these paths/globs (e.g. a `fixtures` or `vendor` dir). |
-| `baseline-sarif` | `` | Optional trusted SARIF path; matching rule/file/line findings are removed before posting or gating. Download the baseline before invoking the Action. |
+| `baseline-sarif` | `` | Optional trusted SARIF path; matching stable Lachesis fingerprints are removed first, with rule/file/line fallback for older reports. Download the baseline before invoking the Action. |
 | `suppression-file` | `` | Optional reviewed JSON file with expiring rule/path/line suppressions. Suppressed results remain visible in SARIF but do not fail `fail-on`. |
 | `changed-files` | `` | If set, only report findings in these files. |
 | `analyze-args` | `--prune --incremental` | Flags for the graph build. |
@@ -183,10 +183,11 @@ so downstream triage can retain continuity when code moves. The diagnostic
 ### Baselines
 
 Set `baseline-sarif` to a reviewed report from the default branch when a repository
-wants to gate only newly introduced findings. Matching uses the SARIF rule ID and
-repository-relative sink file/line, then rewrites the current report before the
-optional poster and `fail-on` gate run. The baseline is never fetched or trusted by
-the Action itself; the workflow must download it as a protected artifact first.
+wants to gate only newly introduced findings. Matching prefers the stable
+`partialFingerprints.lachesisFinding` identity and falls back to SARIF rule ID plus
+repository-relative sink file/line for older reports, then rewrites the current report
+before the optional poster and `fail-on` gate run. The baseline is never fetched or
+trusted by the Action itself; the workflow must download it as a protected artifact first.
 
 For a copyable SARIF-only workflow, see [`example-workflow-sarif.yml`](example-workflow-sarif.yml). It disables hosted PR comments and uploads the generated report through GitHub Code Scanning, so the workflow only needs `security-events: write`.
 
