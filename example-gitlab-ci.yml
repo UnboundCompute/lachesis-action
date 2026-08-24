@@ -1,0 +1,36 @@
+# Copy this into a consuming repository as .gitlab-ci.yml (or merge the job).
+# The job runs entirely on the GitLab runner and archives the same portable SARIF
+# evidence as the GitHub Action. It does not call the hosted Lachesis poster.
+image: python:3.11-bookworm
+
+variables:
+  LACHESIS_REF: "v0.1.7"
+  ATROPOS_REF: "v1.7.1"
+  LACHESIS_ACTION_REF: "v1.0.5"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+  PIP_NO_INPUT: "1"
+  PIP_DEFAULT_TIMEOUT: "60"
+
+lachesis-sarif:
+  stage: test
+  before_script:
+    - apt-get update -qq
+    - apt-get install -y -qq --no-install-recommends git nodejs clang
+    - git clone --depth 1 --branch "$LACHESIS_REF" https://github.com/UnboundCompute/lachesis.git "$CI_PROJECT_DIR/.lachesis-engine"
+    - git clone --depth 1 --branch "$ATROPOS_REF" https://github.com/UnboundCompute/atropos.git "$CI_PROJECT_DIR/.atropos"
+    - git clone --depth 1 --branch "$LACHESIS_ACTION_REF" https://github.com/UnboundCompute/lachesis-action.git "$CI_PROJECT_DIR/.lachesis-action"
+    - python "$CI_PROJECT_DIR/.lachesis-engine/tools/vendor_typescript.py"
+    - python -m pip install "$CI_PROJECT_DIR/.lachesis-engine"
+  script:
+    - export ATROPOS_ROOT="$CI_PROJECT_DIR/.atropos"
+    - lachesis-analyze "$CI_PROJECT_DIR" "$CI_PROJECT_DIR/lachesis.kuzu" --prune --incremental --timeout 300
+    - export ENGINE_SHA="$(git -C "$CI_PROJECT_DIR/.lachesis-engine" rev-parse HEAD)"
+    - export CATALOG_SHA="$(git -C "$CI_PROJECT_DIR/.atropos" rev-parse HEAD)"
+    - export TOOLCHAIN_FINGERPRINT="$(python -c 'import hashlib,sys; print(hashlib.sha256((sys.version + "\n" + "node=" + __import__("subprocess").check_output(["node","--version"], text=True)).encode()).hexdigest())')"
+    - python "$CI_PROJECT_DIR/.lachesis-action/sarif_export.py" "$CI_PROJECT_DIR/lachesis.kuzu" --repo-root "$CI_PROJECT_DIR" --query-timeout 300 --engine-sha "$ENGINE_SHA" --catalog-sha "$CATALOG_SHA" --toolchain-fingerprint "$TOOLCHAIN_FINGERPRINT" --exclude "**/fixtures/**" --output "$CI_PROJECT_DIR/lachesis.sarif"
+  artifacts:
+    when: always
+    expire_in: 1 week
+    paths:
+      - lachesis.sarif
+      - lachesis.kuzu

@@ -177,6 +177,10 @@ the Action itself; the workflow must download it as a protected artifact first.
 
 For a copyable SARIF-only workflow, see [`example-workflow-sarif.yml`](example-workflow-sarif.yml). It disables hosted PR comments and uploads the generated report through GitHub Code Scanning, so the workflow only needs `security-events: write`.
 
+For GitLab or another CI system, [`example-gitlab-ci.yml`](example-gitlab-ci.yml)
+runs the same pinned engine/catalog and archives portable SARIF without requiring a
+GitHub account, OIDC, or the hosted poster.
+
 For durable exceptions, set `suppression-file` to a reviewed JSON document:
 
 ```json

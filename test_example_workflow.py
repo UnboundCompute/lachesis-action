@@ -16,6 +16,14 @@ class ExampleWorkflowTests(unittest.TestCase):
         self.assertIn("upload-sarif@v3", workflow)
         self.assertNotIn("id-token: write", workflow)
 
+    def test_gitlab_workflow_is_pinned_and_exports_portable_sarif(self):
+        workflow = Path(__file__).with_name("example-gitlab-ci.yml").read_text(encoding="utf-8")
+        self.assertIn('LACHESIS_REF: "v0.1.7"', workflow)
+        self.assertIn('ATROPOS_REF: "v1.7.1"', workflow)
+        self.assertIn("sarif_export.py", workflow)
+        self.assertIn("lachesis.sarif", workflow)
+        self.assertNotIn("id-token", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()
