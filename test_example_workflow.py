@@ -3,6 +3,12 @@ import unittest
 
 
 class ExampleWorkflowTests(unittest.TestCase):
+    def test_readme_leads_with_no_account_path(self):
+        readme = Path(__file__).with_name("README.md").read_text(encoding="utf-8")
+        self.assertIn("Quickstart: Code Scanning, no account required", readme)
+        self.assertIn("hosted PR comments", readme)
+        self.assertIn("example-workflow-sarif.yml", readme)
+
     def test_engine_pin_is_not_the_action_release_tag(self):
         workflow = Path(__file__).with_name("example-workflow.yml").read_text(encoding="utf-8")
         self.assertNotIn('lachesis-ref: "v1.0.0"', workflow)

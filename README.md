@@ -58,14 +58,50 @@ differential_siblings: ["getInvoice"]
 The Action runs exactly this on every PR and posts the `UNGUARDED` sibling as an
 `error` comment on the offending line, signed by **Lachesis[bot]**.
 
-## Quickstart
+## Quickstart: Code Scanning, no account required
 
-Two things are needed: install the **Lachesis GitHub App** on the repo (or org),
-then add the workflow.
+Start with the local SARIF path. It runs entirely on your GitHub runner, needs no
+Lachesis account or GitHub App, and publishes findings through GitHub Code Scanning.
+Copy [`example-workflow-sarif.yml`](example-workflow-sarif.yml) to
+`.github/workflows/lachesis-sarif.yml`, or add this minimal workflow:
 
-1. Install the app: **[github.com/apps/lachesis-security](https://github.com/apps/lachesis-security)** →
-   click **Install** → pick the repos it may comment on. (This is the one-time step
-   that gives the bot permission to post; the scan itself still runs in your CI.)
+```yaml
+name: lachesis-sarif
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: UnboundCompute/lachesis-action@v1.0.5
+        id: lachesis
+        with:
+          source: "."
+          post-comments: "false"
+      - uses: github/codeql-action/upload-sarif@v3
+        if: ${{ always() && steps.lachesis.outputs.sarif-file != '' }}
+        with:
+          sarif_file: ${{ steps.lachesis.outputs.sarif-file }}
+```
+
+Open a PR and findings appear in the repository's **Security → Code scanning** view.
+The local `fail-on` gate can still block the job without any hosted service.
+
+### Optional: hosted PR comments
+
+To receive inline review comments from **Lachesis[bot]**, install the
+**[Lachesis GitHub App](https://github.com/apps/lachesis-security)** on the repo or
+organization, then use the hosted workflow below. This is an optional delivery
+surface; the analysis and SARIF output remain local to your runner.
+
+1. Install the app and choose the repositories it may comment on.
 2. Add `.github/workflows/lachesis.yml`:
 
 ```yaml
@@ -78,13 +114,13 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      id-token: write          # lets the action prove the repo to the Lachesis app
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - uses: UnboundCompute/lachesis-action@v1.0.5
         with:
           source: "."
-          fail-on: "error"     # optional: fail the check on guard differentials
+          fail-on: "error"
 ```
 
 Open a PR and the findings appear as inline comments from **Lachesis[bot]** on the
