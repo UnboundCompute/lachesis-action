@@ -13,6 +13,8 @@ class LifecycleSarifTests(unittest.TestCase):
         self.assertEqual(2, changed)
         self.assertEqual("unchanged", current["runs"][0]["results"][0]["baselineState"])
         self.assertEqual("new", current["runs"][0]["results"][1]["baselineState"])
+        self.assertEqual("active", current["runs"][0]["results"][0]["properties"]["lachesisFinding"]["lifecycle_state"])
+        self.assertEqual("new", current["runs"][0]["results"][1]["properties"]["lachesisFinding"]["lifecycle_state"])
         self.assertEqual("compared", current["runs"][0]["properties"]["lachesis_lifecycle_state"])
 
     def test_ignores_results_without_stable_identity(self):

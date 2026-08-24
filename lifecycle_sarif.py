@@ -33,7 +33,11 @@ def apply_lifecycle(current: dict[str, Any], previous: dict[str, Any]) -> int:
             continue
         state = "unchanged" if identifier in previous_ids else "new"
         result["baselineState"] = state
-        result.setdefault("properties", {})["lachesis_lifecycle"] = state
+        properties = result.setdefault("properties", {})
+        properties["lachesis_lifecycle"] = state
+        envelope = properties.get("lachesisFinding")
+        if isinstance(envelope, dict):
+            envelope["lifecycle_state"] = "active" if state == "unchanged" else "new"
         changed += 1
     run.setdefault("properties", {})["lachesis_lifecycle_state"] = "compared"
     return changed
