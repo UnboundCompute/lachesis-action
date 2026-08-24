@@ -22,6 +22,7 @@ def validate(
     query_timeout: str = "300",
     build_timeout: str = "1800",
     candidate_report: str = "none",
+    post_comments: str = "true",
 ) -> list[str]:
     errors: list[str] = []
 
@@ -29,6 +30,8 @@ def validate(
         errors.append("fail-on must be one of: none, note, warning, error")
     if candidate_report not in {"none", "census"}:
         errors.append("candidate-report must be one of: none, census")
+    if post_comments not in {"true", "false"}:
+        errors.append("post-comments must be one of: true, false")
 
     for label, value in (
         ("kuzu-buffer-pool-size", buffer_pool_size),
@@ -90,6 +93,7 @@ def main() -> int:
         query_timeout=os.environ.get("LACHESIS_QUERY_TIMEOUT", "300"),
         build_timeout=os.environ.get("LACHESIS_BUILD_TIMEOUT", "1800"),
         candidate_report=os.environ.get("LACHESIS_CANDIDATE_REPORT", "none"),
+        post_comments=os.environ.get("LACHESIS_POST_COMMENTS", "true"),
     )
     if errors:
         for error in errors:

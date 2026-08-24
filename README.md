@@ -134,6 +134,7 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `sarif-file` | `lachesis.sarif` | Output path for the intermediate SARIF report. |
 | `candidate-report` | `none` | Set to `census` to add an Atropos-backed obligation census to the Actions job summary. This is separate from the taint-path SARIF projection. |
 | `report-endpoint` | `` | Hosted Lachesis poster URL. Leave at the default unless you self-host the poster. |
+| `post-comments` | `true` | Set to `false` for local-only SARIF workflows that upload results to GitHub Code Scanning or another artifact consumer. |
 | `oidc-audience` | `lachesis-bot` | Audience requested for the OIDC token; must match the poster. |
 
 The Action validates its resource limits, output path, threshold values, and
@@ -163,6 +164,8 @@ projection, engine/catalog commit SHAs, and toolchain fingerprint. The
 `candidate-report-file` output is set only when `candidate-report: census` is
 enabled. This keeps local files available for generic CI artifact storage and
 does not require the hosted poster.
+
+For a copyable SARIF-only workflow, see [`example-workflow-sarif.yml`](example-workflow-sarif.yml). It disables hosted PR comments and uploads the generated report through GitHub Code Scanning, so the workflow only needs `security-events: write`.
 
 Dependency installation is noninteractive and uses bounded network behavior: Git aborts
 transfers below 1,000 bytes/second for 60 seconds, and pip uses a 60-second socket

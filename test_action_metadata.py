@@ -43,6 +43,12 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn("--catalog-sha", metadata)
         self.assertIn("--toolchain-fingerprint", metadata)
 
+    def test_hosted_comments_are_opt_out_and_pr_only(self):
+        metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
+        self.assertIn("post-comments:", metadata)
+        self.assertIn('default: "true"', metadata)
+        self.assertIn("inputs.post-comments == 'true' && github.event_name == 'pull_request'", metadata)
+
 
 if __name__ == "__main__":
     unittest.main()

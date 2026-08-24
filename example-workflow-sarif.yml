@@ -1,0 +1,28 @@
+# Copy this into a consuming repo as .github/workflows/lachesis-sarif.yml
+# This mode keeps reporting inside GitHub Code Scanning; it does not call the
+# hosted Lachesis poster and therefore does not need OIDC permissions.
+name: lachesis-sarif
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: UnboundCompute/lachesis-action@v1.0.5
+        id: lachesis
+        with:
+          source: "."
+          post-comments: "false"
+
+      - uses: github/codeql-action/upload-sarif@v3
+        if: ${{ always() && steps.lachesis.outputs.sarif-file != '' }}
+        with:
+          sarif_file: ${{ steps.lachesis.outputs.sarif-file }}

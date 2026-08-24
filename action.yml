@@ -63,6 +63,9 @@ inputs:
       in the calling workflow and the Lachesis app installed on the repo. Override
       only if you self-host the poster.
     default: "https://klh36ropm2fuyhbmomlhnzxfam0ehwzf.lambda-url.us-east-1.on.aws/"
+  post-comments:
+    description: "Post hosted Lachesis[bot] PR comments. Set false when using SARIF upload or another reporting path."
+    default: "true"
   oidc-audience:
     description: "Audience requested for the OIDC token; must match the poster's configured audience."
     default: "lachesis-bot"
@@ -87,6 +90,7 @@ runs:
         LACHESIS_ANALYZE_ARGS: ${{ inputs.analyze-args }}
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
         LACHESIS_CANDIDATE_REPORT: ${{ inputs.candidate-report }}
+        LACHESIS_POST_COMMENTS: ${{ inputs.post-comments }}
         LACHESIS_SOURCE: ${{ inputs.source }}
         LACHESIS_REF: ${{ inputs.lachesis-ref }}
         ATROPOS_REF: ${{ inputs.atropos-ref }}
@@ -341,7 +345,7 @@ runs:
       # Deliver findings as the Lachesis GitHub App. Only meaningful on
       # pull_request; needs id-token: write so we can prove the repo to the
       # poster, and a report-endpoint pointing at the hosted poster.
-      if: ${{ github.event_name == 'pull_request' }}
+      if: ${{ inputs.post-comments == 'true' && github.event_name == 'pull_request' }}
       shell: bash
       env:
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}

@@ -35,6 +35,13 @@ class ValidateInputsTests(unittest.TestCase):
         )
         self.assertIn("candidate-report must be one of: none, census", errors)
 
+    def test_rejects_invalid_post_comments_mode(self):
+        errors = validate(
+            fail_on="none", buffer_pool_size="1", c_jobs="", analyze_args="",
+            sarif_file="report.sarif", source=".", post_comments="maybe",
+        )
+        self.assertIn("post-comments must be one of: true, false", errors)
+
     def test_accepts_quoted_analyzer_args(self):
         self.assertEqual(
             [],
