@@ -238,6 +238,12 @@ trusted by the Action itself; the workflow must download it as a protected artif
 
 For a copyable SARIF-only workflow, see [`example-workflow-sarif.yml`](example-workflow-sarif.yml). It disables hosted PR comments and uploads the generated report through GitHub Code Scanning, so the workflow only needs `security-events: write`.
 
+For cross-run lifecycle tracking, see
+[`example-workflow-lifecycle.yml`](example-workflow-lifecycle.yml). It stores the
+evidence receipt as an artifact and can compare a later manual run with an earlier
+run ID. The first run is explicitly `initial`; later receipts identify new, active,
+and resolved fingerprints. This workflow remains independent of the hosted poster.
+
 For GitLab or another CI system, [`example-gitlab-ci.yml`](example-gitlab-ci.yml)
 runs the same pinned engine/catalog and archives portable SARIF plus the matching
 `lachesis-evidence` manifest without requiring a GitHub account, OIDC, or the hosted

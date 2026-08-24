@@ -22,6 +22,15 @@ class ExampleWorkflowTests(unittest.TestCase):
         self.assertIn("upload-sarif@v3", workflow)
         self.assertNotIn("id-token: write", workflow)
 
+    def test_lifecycle_workflow_carries_prior_receipt_without_poster(self):
+        workflow = Path(__file__).with_name("example-workflow-lifecycle.yml").read_text(encoding="utf-8")
+        self.assertIn("previous_run_id", workflow)
+        self.assertIn("actions/download-artifact@v4", workflow)
+        self.assertIn("previous-evidence:", workflow)
+        self.assertIn("actions/upload-artifact@v4", workflow)
+        self.assertIn('post-comments: "false"', workflow)
+        self.assertNotIn("id-token: write", workflow)
+
     def test_gitlab_workflow_is_pinned_and_exports_portable_sarif(self):
         workflow = Path(__file__).with_name("example-gitlab-ci.yml").read_text(encoding="utf-8")
         self.assertIn('LACHESIS_REF: "v0.1.7"', workflow)

@@ -1,0 +1,50 @@
+# Copy this into a consuming repo when you want portable finding lifecycle data.
+# Trigger the workflow manually with the run ID of an earlier scan to compare
+# new, active, and resolved finding fingerprints. Leave it blank for an initial run.
+name: lachesis-lifecycle
+on:
+  workflow_dispatch:
+    inputs:
+      previous_run_id:
+        description: "Optional earlier workflow run ID containing lachesis-evidence"
+        required: false
+        type: string
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download previous evidence
+        if: ${{ inputs.previous_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: lachesis-evidence
+          path: .lachesis-previous
+          run-id: ${{ inputs.previous_run_id }}
+          github-token: ${{ github.token }}
+
+      - uses: UnboundCompute/lachesis-action@v1.0.5
+        id: lachesis
+        with:
+          source: "."
+          post-comments: "false"
+          previous-evidence: ${{ inputs.previous_run_id != '' && '.lachesis-previous/lachesis-evidence.json' || '' }}
+
+      - uses: github/codeql-action/upload-sarif@v3
+        if: ${{ always() && steps.lachesis.outputs.sarif-file != '' }}
+        with:
+          sarif_file: ${{ steps.lachesis.outputs.sarif-file }}
+
+      - name: Archive lifecycle receipt
+        if: ${{ always() && steps.lachesis.outputs.evidence-file != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: lachesis-evidence
+          path: ${{ steps.lachesis.outputs.evidence-file }}
+          if-no-files-found: error
