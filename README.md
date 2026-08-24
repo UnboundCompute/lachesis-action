@@ -167,6 +167,12 @@ projection, engine/catalog commit SHAs, and toolchain fingerprint. The
 enabled. This keeps local files available for generic CI artifact storage and
 does not require the hosted poster.
 
+The Action also exposes an `evidence-file` output containing a stable
+`lachesis-evidence` manifest. It records the engine/catalog SHAs, toolchain
+fingerprint, repository commit, SARIF SHA-256, result counts, suppression count,
+and baseline removals so a CI system can archive provenance without reinterpreting
+the SARIF document.
+
 ### Baselines
 
 Set `baseline-sarif` to a reviewed report from the default branch when a repository

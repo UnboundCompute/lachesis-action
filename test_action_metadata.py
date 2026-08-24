@@ -36,6 +36,8 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn("candidate-report-file:", metadata)
         self.assertIn("id: export-sarif", metadata)
         self.assertIn("id: export-candidates", metadata)
+        self.assertIn("evidence-file:", metadata)
+        self.assertIn("steps.export-evidence.outputs.evidence-file", metadata)
 
     def test_sarif_export_receives_dependency_provenance(self):
         metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
@@ -60,6 +62,11 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn("suppression-file:", metadata)
         self.assertIn("suppress_sarif.py", metadata)
         self.assertLess(metadata.index("suppress_sarif.py"), metadata.index("name: Gate on findings"))
+
+    def test_evidence_manifest_runs_before_posting(self):
+        metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
+        self.assertIn("evidence_manifest.py", metadata)
+        self.assertLess(metadata.index("evidence_manifest.py"), metadata.index("name: Post PR comments"))
 
 
 if __name__ == "__main__":

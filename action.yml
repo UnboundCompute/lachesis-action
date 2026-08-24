@@ -83,6 +83,9 @@ outputs:
   candidate-report-file:
     description: "Path to the optional Atropos candidate census JSON, or empty when disabled."
     value: ${{ steps.export-candidates.outputs.candidate-report-file }}
+  evidence-file:
+    description: "Path to the machine-readable evidence/provenance manifest for the SARIF report."
+    value: ${{ steps.export-evidence.outputs.evidence-file }}
 
 runs:
   using: "composite"
@@ -364,6 +367,25 @@ runs:
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
         LACHESIS_SUPPRESSION_FILE: ${{ inputs.suppression-file }}
       run: python3 "$GITHUB_ACTION_PATH/suppress_sarif.py" "$LACHESIS_SARIF_FILE" --file "$LACHESIS_SUPPRESSION_FILE"
+
+    - name: Export evidence manifest
+      id: export-evidence
+      shell: bash
+      env:
+        LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+        LACHESIS_EVIDENCE_FILE: ${{ runner.temp }}/lachesis-evidence.json
+        LACHESIS_ENGINE_SHA: ${{ steps.install-lachesis.outputs.engine_sha }}
+        LACHESIS_CATALOG_SHA: ${{ steps.install-atropos.outputs.catalog_sha }}
+        LACHESIS_TOOLCHAIN_FINGERPRINT: ${{ steps.toolchain.outputs.fingerprint }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_SHA: ${{ github.sha }}
+      run: |
+        python3 "$GITHUB_ACTION_PATH/evidence_manifest.py" "$LACHESIS_SARIF_FILE" \
+          --output "$LACHESIS_EVIDENCE_FILE" \
+          --engine-sha "$LACHESIS_ENGINE_SHA" \
+          --catalog-sha "$LACHESIS_CATALOG_SHA" \
+          --toolchain-fingerprint "$LACHESIS_TOOLCHAIN_FINGERPRINT"
+        echo "evidence-file=$LACHESIS_EVIDENCE_FILE" >> "$GITHUB_OUTPUT"
 
     - name: Post PR comments (Lachesis[bot])
       # Deliver findings as the Lachesis GitHub App. Only meaningful on
