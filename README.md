@@ -213,6 +213,15 @@ the SARIF document. When `candidate-report: census` is enabled, the same manifes
 also records the candidate-census JSON digest. Candidate coverage remains a separate
 observation rather than a SARIF finding, but it is now bound to the run receipt.
 
+To track finding transitions across runs, download the prior evidence artifact and
+pass it as `previous-evidence`. The new receipt records stable `new`, `active`, and
+`resolved` finding IDs without requiring the hosted poster:
+
+```yaml
+with:
+  previous-evidence: .artifacts/lachesis-evidence.json
+```
+
 Each SARIF result also carries a `partialFingerprints.lachesisFinding` identity. It is
 derived from the rule, handler, source/sink paths, and labels rather than line numbers,
 so downstream triage can retain continuity when code moves. The diagnostic

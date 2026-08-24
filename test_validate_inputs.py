@@ -49,6 +49,13 @@ class ValidateInputsTests(unittest.TestCase):
         )
         self.assertTrue(any("baseline-sarif does not exist" in error for error in errors))
 
+    def test_rejects_missing_previous_evidence(self):
+        errors = validate(
+            fail_on="none", buffer_pool_size="1", c_jobs="", analyze_args="",
+            sarif_file="report.sarif", source=".", previous_evidence="missing.json",
+        )
+        self.assertTrue(any("previous-evidence does not exist" in error for error in errors))
+
     def test_rejects_missing_suppression_file(self):
         errors = validate(
             fail_on="none", buffer_pool_size="1", c_jobs="", analyze_args="",

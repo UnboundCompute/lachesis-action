@@ -43,6 +43,27 @@ class EvidenceManifestTests(unittest.TestCase):
             assert manifest["candidate_census"]["path"] == str(census)
             assert len(manifest["candidate_census"]["sha256"]) == 64
 
+    def test_manifest_compares_finding_lifecycle_with_previous_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sarif = root / "report.sarif"
+            previous = root / "previous.json"
+            sarif.write_text(json.dumps({"runs": [{"results": [
+                {"properties": {"lachesisFinding": {"finding_id": "a"}}},
+                {"properties": {"lachesisFinding": {"finding_id": "b"}}},
+            ]}]}))
+            previous.write_text(json.dumps({"finding_lifecycle": {
+                "observed_finding_ids": ["a", "c"],
+            }}))
+            lifecycle = build_manifest(
+                sarif, engine_sha="e" * 40, catalog_sha="a" * 40,
+                toolchain_fingerprint="t" * 64, previous_evidence_path=previous,
+            )["finding_lifecycle"]
+            assert lifecycle["state"] == "compared"
+            assert lifecycle["new_finding_ids"] == ["b"]
+            assert lifecycle["active_finding_ids"] == ["a"]
+            assert lifecycle["resolved_finding_ids"] == ["c"]
+
 
 if __name__ == "__main__":
     unittest.main()

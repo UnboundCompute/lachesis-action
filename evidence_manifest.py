@@ -21,6 +21,49 @@ def _read(path: Path) -> dict[str, Any]:
     return document
 
 
+def _finding_ids(results: list[dict[str, Any]]) -> set[str]:
+    ids: set[str] = set()
+    for result in results:
+        properties = result.get("properties") or {}
+        envelope = properties.get("lachesisFinding") or {}
+        finding_id = envelope.get("finding_id")
+        if not isinstance(finding_id, str) or not finding_id:
+            finding_id = (result.get("partialFingerprints") or {}).get("lachesisFinding")
+        if isinstance(finding_id, str) and finding_id:
+            ids.add(finding_id)
+    return ids
+
+
+def _lifecycle(
+    current_ids: set[str], baseline_removed: list[str], previous_evidence_path: Path | None,
+) -> dict[str, Any]:
+    observed = current_ids | set(baseline_removed)
+    previous_ids: set[str] = set()
+    lifecycle: dict[str, Any] = {
+        "state": "initial",
+        "observed_finding_ids": sorted(observed),
+        "new_finding_ids": sorted(observed),
+        "active_finding_ids": [],
+        "resolved_finding_ids": [],
+    }
+    if previous_evidence_path is None:
+        return lifecycle
+    previous = json.loads(previous_evidence_path.read_text(encoding="utf-8"))
+    previous_lifecycle = previous.get("finding_lifecycle") or {}
+    previous_ids = {
+        value for value in previous_lifecycle.get("observed_finding_ids", [])
+        if isinstance(value, str) and value
+    }
+    lifecycle.update({
+        "state": "compared",
+        "new_finding_ids": sorted(observed - previous_ids),
+        "active_finding_ids": sorted(observed & previous_ids),
+        "resolved_finding_ids": sorted(previous_ids - observed),
+        "previous_evidence_sha256": hashlib.sha256(previous_evidence_path.read_bytes()).hexdigest(),
+    })
+    return lifecycle
+
+
 def build_manifest(
     sarif_path: Path,
     *,
@@ -30,12 +73,17 @@ def build_manifest(
     repository: str = "",
     commit_sha: str = "",
     candidate_census_path: Path | None = None,
+    previous_evidence_path: Path | None = None,
 ) -> dict[str, Any]:
     document = _read(sarif_path)
     results = [result for result in document["runs"][0]["results"] if isinstance(result, dict)]
     levels = Counter(str(result.get("level", "warning")) for result in results)
     suppressed = sum(bool(result.get("suppressions")) for result in results)
     run_properties = document["runs"][0].get("properties") or {}
+    baseline_removed_fingerprints = sorted(
+        value for value in run_properties.get("lachesis_baseline_removed_fingerprints", [])
+        if isinstance(value, str) and value
+    )
     manifest = {
         "format": "lachesis-evidence",
         "schema_version": 1,
@@ -54,12 +102,12 @@ def build_manifest(
             "suppressed_results": suppressed,
             "levels": dict(sorted(levels.items())),
             "baseline_removed": int(run_properties.get("lachesis_baseline_removed", 0)),
-            "baseline_removed_fingerprints": sorted(
-                value for value in run_properties.get("lachesis_baseline_removed_fingerprints", [])
-                if isinstance(value, str) and value
-            ),
+            "baseline_removed_fingerprints": baseline_removed_fingerprints,
         },
     }
+    manifest["finding_lifecycle"] = _lifecycle(
+        _finding_ids(results), baseline_removed_fingerprints, previous_evidence_path,
+    )
     if candidate_census_path is not None:
         try:
             json.loads(candidate_census_path.read_text(encoding="utf-8"))
@@ -82,12 +130,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repository", default=os.environ.get("GITHUB_REPOSITORY", ""))
     parser.add_argument("--commit-sha", default=os.environ.get("GITHUB_SHA", ""))
     parser.add_argument("--candidate-census", type=Path)
+    parser.add_argument("--previous-evidence", type=Path, help="prior Lachesis evidence manifest for lifecycle comparison")
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
     manifest = build_manifest(
         args.sarif, engine_sha=args.engine_sha, catalog_sha=args.catalog_sha,
         toolchain_fingerprint=args.toolchain_fingerprint,
         repository=args.repository, commit_sha=args.commit_sha,
-        candidate_census_path=args.candidate_census,
+        candidate_census_path=args.candidate_census, previous_evidence_path=args.previous_evidence,
     )
     args.output.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"lachesis: wrote evidence manifest to {args.output}")
