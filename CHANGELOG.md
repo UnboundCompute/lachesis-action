@@ -4,6 +4,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+## [1.1.0]
+
 - Add a line-move-stable `lachesisFinding` SARIF fingerprint alongside the exact
   engine path id, enabling downstream finding lifecycle and deduplication.
 - Prefer the stable finding fingerprint when filtering a trusted SARIF baseline,
@@ -12,7 +14,7 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   coverage in the GitHub Actions job summary.
 - Expose generated SARIF and candidate-census paths as composite-action outputs so
   callers can archive or upload artifacts through generic CI integrations.
-- Pin development defaults to the reviewed Lachesis `v0.1.7` and Atropos `v1.7.1`
+- Pin development defaults to the reviewed Lachesis `v0.2.0` and Atropos `v1.8.0`
   releases.
 - Record the analysis projection, engine/catalog commits, and toolchain fingerprint
   in SARIF driver properties.
