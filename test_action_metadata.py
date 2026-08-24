@@ -3,6 +3,12 @@ import unittest
 
 
 class ActionMetadataTests(unittest.TestCase):
+    def test_dependency_defaults_are_reviewed_releases(self):
+        metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
+        self.assertIn('lachesis-ref:\n    description:', metadata)
+        self.assertIn('    default: "v0.1.7"', metadata)
+        self.assertIn('    default: "v1.7.1"', metadata)
+
     def test_dependency_checkouts_are_noninteractive(self):
         metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
         self.assertEqual(2, metadata.count('GIT_TERMINAL_PROMPT: "0"'))

@@ -14,12 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: UnboundCompute/lachesis-action@v1.0.4
+      - uses: UnboundCompute/lachesis-action@v1.0.5
         with:
           source: "."
           fail-on: "error"                     # fail the check on guard differentials
           # To BLOCK merge (not just show a red check), also mark the "scan" job a
           # required status check in the repo's branch protection / rulesets.
           # exclude: "test/fixtures vendor"   # drop findings under these paths/globs
-          # lachesis-ref: "v0.1.3" # use a reviewed engine release tag
+          # lachesis-ref: "v0.1.7" # use a reviewed engine release tag
           # atropos-ref: "v1.7.1" # use a reviewed model-catalog release tag

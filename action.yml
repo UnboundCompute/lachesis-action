@@ -16,13 +16,13 @@ inputs:
     default: "https://github.com/UnboundCompute/lachesis"
   lachesis-ref:
     description: "Branch, tag, or SHA of Lachesis to install."
-    default: "main"
+    default: "v0.1.7"
   atropos-repo:
     description: "Git URL for the Atropos taint-model catalog."
     default: "https://github.com/UnboundCompute/atropos"
   atropos-ref:
     description: "Branch, tag, or SHA of Atropos to use. Pin a tag or SHA for reproducibility."
-    default: "main"
+    default: "v1.7.1"
   analyze-args:
     description: "Extra flags passed to lachesis-analyze. Kept light by default."
     default: "--prune --incremental"

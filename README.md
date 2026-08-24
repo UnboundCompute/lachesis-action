@@ -81,7 +81,7 @@ jobs:
       id-token: write          # lets the action prove the repo to the Lachesis app
     steps:
       - uses: actions/checkout@v4
-      - uses: UnboundCompute/lachesis-action@v1.0.4
+      - uses: UnboundCompute/lachesis-action@v1.0.5
         with:
           source: "."
           fail-on: "error"     # optional: fail the check on guard differentials
@@ -127,9 +127,9 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `frontend-timeout` | `300` | Maximum seconds for one Lachesis frontend invocation. |
 | `query-timeout` | `300` | Maximum seconds for one SARIF graph query. |
 | `build-timeout` | `1800` | Maximum seconds for the complete graph build. |
-| `lachesis-ref` | `main` | Lachesis release tag to install. Use a reviewed tag for reproducibility. |
+| `lachesis-ref` | `v0.1.7` | Lachesis release tag to install. Override with a reviewed immutable SHA when required. |
 | `atropos-repo` | `https://github.com/UnboundCompute/atropos` | Atropos catalog repository to load. |
-| `atropos-ref` | `main` | Atropos release tag. Use a reviewed tag for reproducible findings. |
+| `atropos-ref` | `v1.7.1` | Atropos release tag. Override with a reviewed immutable SHA when required. |
 | `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. Other values fail configuration validation. |
 | `sarif-file` | `lachesis.sarif` | Output path for the intermediate SARIF report. |
 | `report-endpoint` | `` | Hosted Lachesis poster URL. Leave at the default unless you self-host the poster. |
@@ -161,9 +161,9 @@ independent of posting).
 
 ## Reproducible production use
 
-Set `lachesis-ref` to a reviewed Lachesis release tag in production workflows. The
-default `main` ref is intended for development and follows engine changes. Set
-`atropos-ref` to a reviewed catalog release tag as well. The Action itself is released
+The defaults use the reviewed Lachesis `v0.1.7` and Atropos `v1.7.1` releases. For
+strongest reproducibility, override both with reviewed immutable SHAs. Development
+workflows can opt into a branch explicitly. The Action itself is released
 under its own `v1` tag; release verification and
 rollback guidance are in [`RELEASING.md`](./RELEASING.md).
 
