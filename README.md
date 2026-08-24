@@ -251,6 +251,15 @@ evidence receipt as an artifact and can compare a later manual run with an earli
 run ID. The first run is explicitly `initial`; later receipts identify new, active,
 and resolved fingerprints. This workflow remains independent of the hosted poster.
 
+For offline tickets or release reports, render the preserved artifacts without
+losing code-flow or lifecycle context:
+
+```bash
+python3 render_sarif.py lachesis.sarif --evidence lachesis-evidence.json \
+  --format markdown --output lachesis-report.md
+python3 render_sarif.py lachesis.sarif --format html --output lachesis-report.html
+```
+
 For GitLab or another CI system, [`example-gitlab-ci.yml`](example-gitlab-ci.yml)
 runs the same pinned engine/catalog and archives portable SARIF plus the matching
 `lachesis-evidence` manifest without requiring a GitHub account, OIDC, or the hosted
