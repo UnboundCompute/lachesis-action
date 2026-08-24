@@ -39,6 +39,7 @@ def build_manifest(
     manifest = {
         "format": "lachesis-evidence",
         "schema_version": 1,
+        "finding_schema_version": "0.1",
         "analysis_projection": "security-paths",
         "repository": repository,
         "commit_sha": commit_sha,

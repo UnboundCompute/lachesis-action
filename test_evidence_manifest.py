@@ -22,6 +22,7 @@ class EvidenceManifestTests(unittest.TestCase):
                 toolchain_fingerprint="t" * 64, repository="org/repo", commit_sha="c" * 40,
             )
             assert manifest["format"] == "lachesis-evidence"
+            assert manifest["finding_schema_version"] == "0.1"
             assert manifest["sarif"]["active_results"] == 1
             assert manifest["sarif"]["suppressed_results"] == 1
             assert manifest["sarif"]["baseline_removed"] == 2
