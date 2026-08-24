@@ -3,9 +3,10 @@
 **Find the endpoint that forgot the authorization check, the one its sibling remembered.**
 
 A GitHub Action that builds a compiler-precise code property graph of your repo,
-traces untrusted input to dangerous sinks, and posts what it finds straight onto
-the pull request as **Lachesis[bot]** — inline on the changed lines, leveled by
-guard status. The analysis runs entirely on your own runner.
+traces untrusted input to dangerous sinks, and emits reviewable SARIF from your
+own runner. Add the optional hosted poster when you want inline pull-request
+comments from **Lachesis[bot]**; the account-free Code Scanning path is the
+default product experience.
 
 [![Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-Lachesis-8250df?logo=github)](https://github.com/marketplace/actions/lachesis-security-scan)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
@@ -55,7 +56,8 @@ differential_siblings: ["getInvoice"]
   getInvoice guards the identical sink; getDocument does not.
 ```
 
-The Action runs exactly this on every PR and posts the `UNGUARDED` sibling as an
+The Action can run this analysis on every PR without a hosted service. When the
+optional poster is enabled, it can also post the `UNGUARDED` sibling as an
 `error` comment on the offending line, signed by **Lachesis[bot]**.
 
 ## Quickstart: Code Scanning, no account required
