@@ -1,7 +1,8 @@
 # Publishing to GitHub Marketplace
 
 This repo is Marketplace-ready: `action.yml` is at the root, has a unique `name`
-and a `branding` block, and the `README.md` becomes the listing body.
+and a `branding` block, and the `README.md` becomes the listing body. The current
+reviewed Action release is `v1.0.5`.
 
 ## One-time publish steps
 
@@ -19,16 +20,17 @@ and a `branding` block, and the `README.md` becomes the listing body.
 ## Release tagging (do this on THIS repo, not the engine repo)
 
 ```bash
-git tag -a v1.0.0 -m "Lachesis Security Scan v1.0.0"
-git push origin v1.0.0
+git tag -a v1.0.5 -m "Lachesis Security Scan v1.0.5"
+git push origin v1.0.5
 
 # Moving major tag consumers pin to; re-point it on every v1.x release:
-git tag -f v1 v1.0.0
+git tag -f v1 v1.0.5
 git push -f origin v1
 ```
 
-Consumers should use the reviewed release tag
-`UnboundCompute/lachesis-action@v1` (the `v1.0.0` release).
+Consumers should use `UnboundCompute/lachesis-action@v1` for the moving major
+channel, or `UnboundCompute/lachesis-action@v1.0.5` when the wrapper itself must
+remain fixed.
 
 > Reproducibility note: for a locked release, set the `lachesis-ref` and
 > `atropos-ref` inputs to reviewed release tags. Pinning the wrapper
