@@ -373,6 +373,14 @@ runs:
         LACHESIS_SUPPRESSION_FILE: ${{ inputs.suppression-file }}
       run: python3 "$GITHUB_ACTION_PATH/suppress_sarif.py" "$LACHESIS_SARIF_FILE" --file "$LACHESIS_SUPPRESSION_FILE"
 
+    - name: Annotate finding lifecycle in SARIF
+      if: ${{ inputs.previous-evidence != '' }}
+      shell: bash
+      env:
+        LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+        LACHESIS_PREVIOUS_EVIDENCE: ${{ inputs.previous-evidence }}
+      run: python3 "$GITHUB_ACTION_PATH/lifecycle_sarif.py" "$LACHESIS_SARIF_FILE" --previous-evidence "$LACHESIS_PREVIOUS_EVIDENCE"
+
     - name: Export evidence manifest
       id: export-evidence
       shell: bash

@@ -222,6 +222,11 @@ with:
   previous-evidence: .artifacts/lachesis-evidence.json
 ```
 
+When a prior receipt is supplied, current SARIF results also carry the standard
+`baselineState` value (`new` or `unchanged`) and a
+`properties.lachesis_lifecycle` projection. Resolved findings remain represented
+in the evidence receipt because they have no current SARIF result to annotate.
+
 Each SARIF result also carries a `partialFingerprints.lachesisFinding` identity. It is
 derived from the rule, handler, source/sink paths, and labels rather than line numbers,
 so downstream triage can retain continuity when code moves. The diagnostic

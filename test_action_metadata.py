@@ -73,6 +73,11 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn("evidence_manifest.py", metadata)
         self.assertLess(metadata.index("evidence_manifest.py"), metadata.index("name: Post PR comments"))
 
+    def test_lifecycle_annotation_runs_before_evidence_export(self):
+        metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
+        self.assertIn("lifecycle_sarif.py", metadata)
+        self.assertLess(metadata.index("lifecycle_sarif.py"), metadata.index("evidence_manifest.py"))
+
 
 if __name__ == "__main__":
     unittest.main()
