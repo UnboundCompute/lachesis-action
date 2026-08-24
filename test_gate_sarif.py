@@ -23,6 +23,13 @@ class GateSarifTests(unittest.TestCase):
         self.assertEqual(2, len(findings_at_or_above(path, "warning")))
         self.assertEqual(1, len(findings_at_or_above(path, "error")))
 
+    def test_suppressed_results_do_not_fail_gate(self):
+        path = self._write({"runs": [{"results": [
+            {"level": "error", "suppressions": [{"kind": "external"}]},
+            {"level": "error"},
+        ]}]})
+        self.assertEqual(1, len(findings_at_or_above(path, "error")))
+
     def test_malformed_report_is_actionable(self):
         path = self._write({"version": "2.1.0"})
         with self.assertRaisesRegex(SarifError, "no runs"):

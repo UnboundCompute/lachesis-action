@@ -24,6 +24,7 @@ def validate(
     candidate_report: str = "none",
     post_comments: str = "true",
     baseline_sarif: str = "",
+    suppression_file: str = "",
 ) -> list[str]:
     errors: list[str] = []
 
@@ -35,6 +36,8 @@ def validate(
         errors.append("post-comments must be one of: true, false")
     if baseline_sarif and not Path(baseline_sarif).is_file():
         errors.append(f"baseline-sarif does not exist: {baseline_sarif}")
+    if suppression_file and not Path(suppression_file).is_file():
+        errors.append(f"suppression-file does not exist: {suppression_file}")
 
     for label, value in (
         ("kuzu-buffer-pool-size", buffer_pool_size),
@@ -98,6 +101,7 @@ def main() -> int:
         candidate_report=os.environ.get("LACHESIS_CANDIDATE_REPORT", "none"),
         post_comments=os.environ.get("LACHESIS_POST_COMMENTS", "true"),
         baseline_sarif=os.environ.get("LACHESIS_BASELINE_SARIF", ""),
+        suppression_file=os.environ.get("LACHESIS_SUPPRESSION_FILE", ""),
     )
     if errors:
         for error in errors:

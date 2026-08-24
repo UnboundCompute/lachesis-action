@@ -122,6 +122,7 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `kuzu-buffer-pool-size` | `1073741824` | Kùzu buffer-pool ceiling in bytes. Raise it for very large trees; lower it on constrained runners. |
 | `exclude` | `` | Drop findings under these paths/globs (e.g. a `fixtures` or `vendor` dir). |
 | `baseline-sarif` | `` | Optional trusted SARIF path; matching rule/file/line findings are removed before posting or gating. Download the baseline before invoking the Action. |
+| `suppression-file` | `` | Optional reviewed JSON file with expiring rule/path/line suppressions. Suppressed results remain visible in SARIF but do not fail `fail-on`. |
 | `changed-files` | `` | If set, only report findings in these files. |
 | `analyze-args` | `--prune --incremental` | Flags for the graph build. |
 | `c-jobs` | empty (adaptive) | Optional Clang frontend concurrency override; use `1` to cap memory or `2` for a measured medium-tree runner. |
@@ -175,6 +176,22 @@ optional poster and `fail-on` gate run. The baseline is never fetched or trusted
 the Action itself; the workflow must download it as a protected artifact first.
 
 For a copyable SARIF-only workflow, see [`example-workflow-sarif.yml`](example-workflow-sarif.yml). It disables hosted PR comments and uploads the generated report through GitHub Code Scanning, so the workflow only needs `security-events: write`.
+
+For durable exceptions, set `suppression-file` to a reviewed JSON document:
+
+```json
+{"version": 1, "suppressions": [{
+  "ruleId": "lachesis/unguarded-sink",
+  "path": "src/legacy/*.py",
+  "line": 42,
+  "reason": "Accepted legacy boundary; replacement tracked in SEC-123.",
+  "expires": "2026-12-31"
+}]}
+```
+
+Reasons and expiry dates are mandatory. Expired or malformed records fail the Action
+before analysis, and suppressed results retain standard SARIF suppression metadata for
+auditability.
 
 Dependency installation is noninteractive and uses bounded network behavior: Git aborts
 transfers below 1,000 bytes/second for 60 seconds, and pip uses a 60-second socket

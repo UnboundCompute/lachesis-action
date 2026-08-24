@@ -49,6 +49,13 @@ class ValidateInputsTests(unittest.TestCase):
         )
         self.assertTrue(any("baseline-sarif does not exist" in error for error in errors))
 
+    def test_rejects_missing_suppression_file(self):
+        errors = validate(
+            fail_on="none", buffer_pool_size="1", c_jobs="", analyze_args="",
+            sarif_file="report.sarif", source=".", suppression_file="missing.json",
+        )
+        self.assertTrue(any("suppression-file does not exist" in error for error in errors))
+
     def test_accepts_quoted_analyzer_args(self):
         self.assertEqual(
             [],

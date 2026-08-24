@@ -46,6 +46,7 @@ def findings_at_or_above(path: str | Path, threshold: str) -> list[dict[str, Any
     return [
         result
         for result in _results(path)
+        if not result.get("suppressions")
         if ORDER.get(str(result.get("level", "warning")).lower(), 2) >= gate
     ]
 

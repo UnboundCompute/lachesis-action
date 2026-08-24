@@ -56,6 +56,9 @@ inputs:
   baseline-sarif:
     description: "Optional trusted SARIF report; matching rule/file/line findings are removed from the current report before posting or gating."
     default: ""
+  suppression-file:
+    description: "Optional reviewed JSON suppression file with ruleId, path, reason, and expiry records."
+    default: ""
   fail-on:
     description: "Fail the step if any finding is at this level or above: none | note | warning | error."
     default: "none"
@@ -95,6 +98,7 @@ runs:
         LACHESIS_CANDIDATE_REPORT: ${{ inputs.candidate-report }}
         LACHESIS_POST_COMMENTS: ${{ inputs.post-comments }}
         LACHESIS_BASELINE_SARIF: ${{ inputs.baseline-sarif }}
+        LACHESIS_SUPPRESSION_FILE: ${{ inputs.suppression-file }}
         LACHESIS_SOURCE: ${{ inputs.source }}
         LACHESIS_REF: ${{ inputs.lachesis-ref }}
         ATROPOS_REF: ${{ inputs.atropos-ref }}
@@ -352,6 +356,14 @@ runs:
         print("```")
         PY
         fi
+
+    - name: Apply reviewed suppressions
+      if: ${{ inputs.suppression-file != '' }}
+      shell: bash
+      env:
+        LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+        LACHESIS_SUPPRESSION_FILE: ${{ inputs.suppression-file }}
+      run: python3 "$GITHUB_ACTION_PATH/suppress_sarif.py" "$LACHESIS_SARIF_FILE" --file "$LACHESIS_SUPPRESSION_FILE"
 
     - name: Post PR comments (Lachesis[bot])
       # Deliver findings as the Lachesis GitHub App. Only meaningful on

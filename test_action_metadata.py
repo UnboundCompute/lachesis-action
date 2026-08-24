@@ -55,6 +55,12 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn("baseline_sarif.py", metadata)
         self.assertLess(metadata.index("baseline_sarif.py"), metadata.index("name: Gate on findings"))
 
+    def test_suppression_filter_runs_before_gate(self):
+        metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
+        self.assertIn("suppression-file:", metadata)
+        self.assertIn("suppress_sarif.py", metadata)
+        self.assertLess(metadata.index("suppress_sarif.py"), metadata.index("name: Gate on findings"))
+
 
 if __name__ == "__main__":
     unittest.main()
