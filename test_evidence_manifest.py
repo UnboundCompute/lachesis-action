@@ -11,7 +11,7 @@ class EvidenceManifestTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "report.sarif"
             path.write_text(json.dumps({"runs": [{
-                "properties": {"lachesis_baseline_removed": 2},
+                "properties": {"lachesis_baseline_removed": 2, "lachesis_baseline_removed_fingerprints": ["f" * 64]},
                 "results": [
                     {"level": "error"},
                     {"level": "warning", "suppressions": [{"kind": "external"}]},
@@ -26,6 +26,7 @@ class EvidenceManifestTests(unittest.TestCase):
             assert manifest["sarif"]["active_results"] == 1
             assert manifest["sarif"]["suppressed_results"] == 1
             assert manifest["sarif"]["baseline_removed"] == 2
+            assert manifest["sarif"]["baseline_removed_fingerprints"] == ["f" * 64]
             assert len(manifest["sarif"]["sha256"]) == 64
 
     def test_manifest_binds_optional_candidate_census_digest(self):

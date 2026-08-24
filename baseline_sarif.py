@@ -61,10 +61,17 @@ def filter_document(current: dict[str, Any], baseline: dict[str, Any]) -> int:
         fingerprint = _fingerprint(result)
         return (fingerprint and fingerprint in baseline_fingerprints) or _key(result) in baseline_keys
 
+    removed_fingerprints = sorted({
+        _fingerprint(result)
+        for result in results
+        if isinstance(result, dict) and is_baselined(result) and _fingerprint(result)
+    })
     kept = [result for result in results if not is_baselined(result)]
     removed = len(results) - len(kept)
     current["runs"][0]["results"] = kept
-    current.setdefault("runs", [{}])[0].setdefault("properties", {})["lachesis_baseline_removed"] = removed
+    properties = current.setdefault("runs", [{}])[0].setdefault("properties", {})
+    properties["lachesis_baseline_removed"] = removed
+    properties["lachesis_baseline_removed_fingerprints"] = removed_fingerprints
     return removed
 
 

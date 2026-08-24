@@ -26,6 +26,7 @@ class BaselineSarifTests(unittest.TestCase):
         self.assertEqual(1, removed)
         self.assertEqual([20, 10], [r["locations"][0]["physicalLocation"]["region"]["startLine"] for r in current["runs"][0]["results"]])
         self.assertEqual(1, current["runs"][0]["properties"]["lachesis_baseline_removed"])
+        self.assertEqual([], current["runs"][0]["properties"]["lachesis_baseline_removed_fingerprints"])
 
     def test_cli_rewrites_current_report(self):
         from baseline_sarif import main
@@ -42,6 +43,7 @@ class BaselineSarifTests(unittest.TestCase):
         removed = filter_document(current, report([finding(12, fingerprint="stable-1")]))
         self.assertEqual(1, removed)
         self.assertEqual([20], [r["locations"][0]["physicalLocation"]["region"]["startLine"] for r in current["runs"][0]["results"]])
+        self.assertEqual(["stable-1"], current["runs"][0]["properties"]["lachesis_baseline_removed_fingerprints"])
 
 
 if __name__ == "__main__":

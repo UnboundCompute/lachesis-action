@@ -54,6 +54,10 @@ def build_manifest(
             "suppressed_results": suppressed,
             "levels": dict(sorted(levels.items())),
             "baseline_removed": int(run_properties.get("lachesis_baseline_removed", 0)),
+            "baseline_removed_fingerprints": sorted(
+                value for value in run_properties.get("lachesis_baseline_removed_fingerprints", [])
+                if isinstance(value, str) and value
+            ),
         },
     }
     if candidate_census_path is not None:
