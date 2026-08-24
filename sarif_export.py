@@ -225,6 +225,27 @@ def build_result(
             "lachesisPathId": path_query.get("id", ""),
         },
     }
+    finding_id = result["partialFingerprints"]["lachesisFinding"]
+    result["properties"] = {
+        "lachesisFinding": {
+            "schema_version": "0.1",
+            "finding_id": finding_id,
+            "status": "lead",
+            "analysis": {
+                "projection": "security-paths",
+                "confidence": confidence or "unresolved",
+                "limitations": [],
+            },
+            "locations": result["locations"],
+            "witness": {
+                "steps": steps,
+                "guards": {
+                    "status": guard.get("status") or "UNRESOLVED",
+                    "differential_siblings": guard.get("differential_siblings") or [],
+                },
+            },
+        }
+    }
     if thread_locs:
         result["codeFlows"] = [{"threadFlows": [{"locations": thread_locs}]}]
     return result

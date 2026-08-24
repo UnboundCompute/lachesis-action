@@ -77,6 +77,11 @@ class SarifExportTests(unittest.TestCase):
         self.assertEqual("path-1", result["partialFingerprints"]["lachesisPathId"])
         self.assertEqual(64, len(result["partialFingerprints"]["lachesisFinding"]))
         self.assertEqual(2, len(result["codeFlows"][0]["threadFlows"][0]["locations"]))
+        envelope = result["properties"]["lachesisFinding"]
+        self.assertEqual("0.1", envelope["schema_version"])
+        self.assertEqual("lead", envelope["status"])
+        self.assertEqual(result["partialFingerprints"]["lachesisFinding"], envelope["finding_id"])
+        self.assertEqual("security-paths", envelope["analysis"]["projection"])
 
     def test_finding_fingerprint_survives_line_moves(self):
         base = {
