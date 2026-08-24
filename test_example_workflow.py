@@ -22,6 +22,9 @@ class ExampleWorkflowTests(unittest.TestCase):
         self.assertIn('ATROPOS_REF: "v1.7.1"', workflow)
         self.assertIn("sarif_export.py", workflow)
         self.assertIn("lachesis.sarif", workflow)
+        self.assertIn("evidence_manifest.py", workflow)
+        self.assertIn("lachesis-evidence.json", workflow)
+        self.assertIn("CI_PROJECT_PATH", workflow)
         self.assertNotIn("id-token", workflow)
 
 
