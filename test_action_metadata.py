@@ -24,6 +24,12 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertEqual(2, metadata.count('GIT_HTTP_LOW_SPEED_LIMIT: "1000"'))
         self.assertEqual(2, metadata.count('GIT_HTTP_LOW_SPEED_TIME: "60"'))
 
+    def test_candidate_census_is_explicitly_opt_in(self):
+        metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
+        self.assertIn("candidate-report:", metadata)
+        self.assertIn('default: "none"', metadata)
+        self.assertIn("inputs.candidate-report == 'census'", metadata)
+
 
 if __name__ == "__main__":
     unittest.main()

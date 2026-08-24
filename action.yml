@@ -44,6 +44,9 @@ inputs:
   sarif-file:
     description: "Where to write the SARIF report."
     default: "lachesis.sarif"
+  candidate-report:
+    description: "Optional Atropos-backed candidate census in the GitHub Actions job summary: none | census."
+    default: "none"
   changed-files:
     description: "Optional space/comma-separated list; when set, only findings in these files are reported."
     default: ""
@@ -75,6 +78,7 @@ runs:
         LACHESIS_C_JOBS: ${{ inputs.c-jobs }}
         LACHESIS_ANALYZE_ARGS: ${{ inputs.analyze-args }}
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+        LACHESIS_CANDIDATE_REPORT: ${{ inputs.candidate-report }}
         LACHESIS_SOURCE: ${{ inputs.source }}
         LACHESIS_REF: ${{ inputs.lachesis-ref }}
         ATROPOS_REF: ${{ inputs.atropos-ref }}
@@ -271,6 +275,49 @@ runs:
           --query-timeout "$LACHESIS_QUERY_TIMEOUT" \
           -o "$LACHESIS_SARIF_FILE" \
           "${ARGS[@]}"
+
+    - name: Summarize scan contract
+      shell: bash
+      env:
+        LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+        LACHESIS_ENGINE_SHA: ${{ steps.install-lachesis.outputs.engine_sha }}
+        ATROPOS_SHA: ${{ steps.install-atropos.outputs.catalog_sha }}
+        LACHESIS_CANDIDATE_REPORT: ${{ inputs.candidate-report }}
+      run: |
+        if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+          {
+            echo "## Lachesis scan"
+            echo
+            echo "- SARIF: \`$LACHESIS_SARIF_FILE\` (taint/security-paths projection)"
+            echo "- Engine: \`$LACHESIS_ENGINE_SHA\`"
+            echo "- Atropos catalog: \`$ATROPOS_SHA\`"
+            echo "- Candidate census: \`$LACHESIS_CANDIDATE_REPORT\`"
+            echo
+            echo "The SARIF projection reports source-to-sink security paths."
+            echo "Use \`candidate-report: census\` to include catalog-backed obligation coverage in this summary."
+          } >> "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Export candidate census
+      if: ${{ inputs.candidate-report == 'census' }}
+      shell: bash
+      env:
+        LACHESIS_CANDIDATE_FILE: ${{ runner.temp }}/lachesis-candidates.json
+      run: |
+        lachesis-candidates "$RUNNER_TEMP/lachesis.kuzu" --census > "$LACHESIS_CANDIDATE_FILE"
+        if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
+          python3 - "$LACHESIS_CANDIDATE_FILE" >> "$GITHUB_STEP_SUMMARY" <<'PY'
+        import json
+        import sys
+
+        with open(sys.argv[1], encoding="utf-8") as handle:
+            report = json.load(handle)
+        print("\n### Candidate census\n")
+        print("```json")
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+        print("```")
+        PY
+        fi
 
     - name: Post PR comments (Lachesis[bot])
       # Deliver findings as the Lachesis GitHub App. Only meaningful on

@@ -28,6 +28,13 @@ class ValidateInputsTests(unittest.TestCase):
         )
         self.assertEqual(6, len(errors))
 
+    def test_rejects_unknown_candidate_report(self):
+        errors = validate(
+            fail_on="none", buffer_pool_size="1", c_jobs="", analyze_args="",
+            sarif_file="report.sarif", source=".", candidate_report="full",
+        )
+        self.assertIn("candidate-report must be one of: none, census", errors)
+
     def test_accepts_quoted_analyzer_args(self):
         self.assertEqual(
             [],

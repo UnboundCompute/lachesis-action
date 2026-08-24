@@ -21,11 +21,14 @@ def validate(
     frontend_timeout: str = "300",
     query_timeout: str = "300",
     build_timeout: str = "1800",
+    candidate_report: str = "none",
 ) -> list[str]:
     errors: list[str] = []
 
     if fail_on not in {"none", "note", "warning", "error"}:
         errors.append("fail-on must be one of: none, note, warning, error")
+    if candidate_report not in {"none", "census"}:
+        errors.append("candidate-report must be one of: none, census")
 
     for label, value in (
         ("kuzu-buffer-pool-size", buffer_pool_size),
@@ -86,6 +89,7 @@ def main() -> int:
         frontend_timeout=os.environ.get("LACHESIS_FRONTEND_TIMEOUT", "300"),
         query_timeout=os.environ.get("LACHESIS_QUERY_TIMEOUT", "300"),
         build_timeout=os.environ.get("LACHESIS_BUILD_TIMEOUT", "1800"),
+        candidate_report=os.environ.get("LACHESIS_CANDIDATE_REPORT", "none"),
     )
     if errors:
         for error in errors:
