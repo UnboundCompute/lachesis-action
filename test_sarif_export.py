@@ -111,6 +111,17 @@ class SarifExportTests(unittest.TestCase):
         self.assertEqual("app/routes/reports.py", loc["artifactLocation"]["uri"])
         self.assertEqual(52, loc["region"]["startLine"])
 
+    def test_build_sarif_records_analysis_provenance(self):
+        with mock.patch.object(sarif_export, "collect_paths", return_value=[]):
+            sarif = sarif_export.build_sarif(
+                "graph.kuzu", ["q"], "/repo", None,
+                provenance={"engine_sha": "engine", "catalog_sha": "catalog"},
+            )
+        properties = sarif["runs"][0]["tool"]["driver"]["properties"]
+        self.assertEqual("security-paths", properties["analysis_projection"])
+        self.assertEqual("engine", properties["engine_sha"])
+        self.assertEqual("catalog", properties["catalog_sha"])
+
 
 if __name__ == "__main__":
     unittest.main()

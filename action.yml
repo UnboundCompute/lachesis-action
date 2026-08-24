@@ -270,6 +270,9 @@ runs:
         LACHESIS_EXCLUDE: ${{ inputs.exclude }}
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
         LACHESIS_QUERY_TIMEOUT: ${{ inputs.query-timeout }}
+        LACHESIS_ENGINE_SHA: ${{ steps.install-lachesis.outputs.engine_sha }}
+        LACHESIS_CATALOG_SHA: ${{ steps.install-atropos.outputs.catalog_sha }}
+        LACHESIS_TOOLCHAIN_FINGERPRINT: ${{ steps.toolchain.outputs.fingerprint }}
       run: |
         ARGS=()
         if [ -n "$LACHESIS_CHANGED_FILES" ]; then
@@ -282,6 +285,9 @@ runs:
           "$RUNNER_TEMP/lachesis.kuzu" \
           --repo-root "$GITHUB_WORKSPACE" \
           --query-timeout "$LACHESIS_QUERY_TIMEOUT" \
+          --engine-sha "$LACHESIS_ENGINE_SHA" \
+          --catalog-sha "$LACHESIS_CATALOG_SHA" \
+          --toolchain-fingerprint "$LACHESIS_TOOLCHAIN_FINGERPRINT" \
           -o "$LACHESIS_SARIF_FILE" \
           "${ARGS[@]}"
         echo "sarif-file=$LACHESIS_SARIF_FILE" >> "$GITHUB_OUTPUT"

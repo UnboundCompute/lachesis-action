@@ -235,6 +235,7 @@ def build_sarif(
     changed: Optional[set],
     excluded: Optional[List[str]] = None,
     query_timeout: int = DEFAULT_QUERY_TIMEOUT_SECONDS,
+    provenance: Optional[Dict[str, str]] = None,
 ) -> Dict[str, Any]:
     results: List[Dict[str, Any]] = []
     used_rules: Dict[str, Dict[str, str]] = {}
@@ -274,6 +275,13 @@ def build_sarif(
         for meta in used_rules.values()
     ]
 
+    properties: Dict[str, str] = {
+        "analysis_projection": "security-paths",
+    }
+    for key in ("engine_sha", "catalog_sha", "toolchain_fingerprint"):
+        if provenance and provenance.get(key):
+            properties[key] = provenance[key]
+
     return {
         "$schema": SCHEMA,
         "version": "2.1.0",
@@ -282,6 +290,7 @@ def build_sarif(
                 "name": "Lachesis",
                 "informationUri": INFO_URI,
                 "rules": rules,
+                "properties": properties,
             }},
             "results": results,
         }],
@@ -340,6 +349,9 @@ def main() -> int:
                          "vendor dir (repeatable / comma-separated)")
     ap.add_argument("--query-timeout", type=int, default=DEFAULT_QUERY_TIMEOUT_SECONDS,
                     help="maximum seconds for each graph query")
+    ap.add_argument("--engine-sha", help="engine commit recorded in SARIF provenance")
+    ap.add_argument("--catalog-sha", help="Atropos commit recorded in SARIF provenance")
+    ap.add_argument("--toolchain-fingerprint", help="toolchain fingerprint recorded in SARIF provenance")
     args = ap.parse_args()
 
     if args.query_timeout <= 0:
@@ -348,8 +360,15 @@ def main() -> int:
     query_cmd = shlex.split(args.query_cmd)
     changed = load_changed(args)
     excluded = load_excluded(args)
-    sarif = build_sarif(args.graph, query_cmd, args.repo_root, changed, excluded,
-                        query_timeout=args.query_timeout)
+    sarif = build_sarif(
+        args.graph, query_cmd, args.repo_root, changed, excluded,
+        query_timeout=args.query_timeout,
+        provenance={
+            "engine_sha": args.engine_sha or "",
+            "catalog_sha": args.catalog_sha or "",
+            "toolchain_fingerprint": args.toolchain_fingerprint or "",
+        },
+    )
 
     text = json.dumps(sarif, indent=2)
     n = len(sarif["runs"][0]["results"])

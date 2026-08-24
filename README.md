@@ -157,7 +157,9 @@ Give the Action an `id` when another step needs the generated artifacts:
     sarif_file: ${{ steps.lachesis.outputs.sarif-file }}
 ```
 
-The `sarif-file` output is always set when SARIF export succeeds. The
+The generated SARIF driver metadata records the `security-paths` analysis
+projection, engine/catalog commit SHAs, and toolchain fingerprint. The
+`sarif-file` output is always set when SARIF export succeeds. The
 `candidate-report-file` output is set only when `candidate-report: census` is
 enabled. This keeps local files available for generic CI artifact storage and
 does not require the hosted poster.

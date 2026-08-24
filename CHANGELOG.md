@@ -10,6 +10,8 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   callers can archive or upload artifacts through generic CI integrations.
 - Pin development defaults to the reviewed Lachesis `v0.1.7` and Atropos `v1.7.1`
   releases.
+- Record the analysis projection, engine/catalog commits, and toolchain fingerprint
+  in SARIF driver properties.
 
 ## [1.0.5]
 

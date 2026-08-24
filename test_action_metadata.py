@@ -37,6 +37,12 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn("id: export-sarif", metadata)
         self.assertIn("id: export-candidates", metadata)
 
+    def test_sarif_export_receives_dependency_provenance(self):
+        metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
+        self.assertIn("--engine-sha", metadata)
+        self.assertIn("--catalog-sha", metadata)
+        self.assertIn("--toolchain-fingerprint", metadata)
+
 
 if __name__ == "__main__":
     unittest.main()
