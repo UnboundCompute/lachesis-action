@@ -121,6 +121,7 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `python-version` | `3.11` | Python runtime for the engine. Override only with a version tested against the Lachesis/Kùzu dependency set. |
 | `kuzu-buffer-pool-size` | `1073741824` | Kùzu buffer-pool ceiling in bytes. Raise it for very large trees; lower it on constrained runners. |
 | `exclude` | `` | Drop findings under these paths/globs (e.g. a `fixtures` or `vendor` dir). |
+| `baseline-sarif` | `` | Optional trusted SARIF path; matching rule/file/line findings are removed before posting or gating. Download the baseline before invoking the Action. |
 | `changed-files` | `` | If set, only report findings in these files. |
 | `analyze-args` | `--prune --incremental` | Flags for the graph build. |
 | `c-jobs` | empty (adaptive) | Optional Clang frontend concurrency override; use `1` to cap memory or `2` for a measured medium-tree runner. |
@@ -164,6 +165,14 @@ projection, engine/catalog commit SHAs, and toolchain fingerprint. The
 `candidate-report-file` output is set only when `candidate-report: census` is
 enabled. This keeps local files available for generic CI artifact storage and
 does not require the hosted poster.
+
+### Baselines
+
+Set `baseline-sarif` to a reviewed report from the default branch when a repository
+wants to gate only newly introduced findings. Matching uses the SARIF rule ID and
+repository-relative sink file/line, then rewrites the current report before the
+optional poster and `fail-on` gate run. The baseline is never fetched or trusted by
+the Action itself; the workflow must download it as a protected artifact first.
 
 For a copyable SARIF-only workflow, see [`example-workflow-sarif.yml`](example-workflow-sarif.yml). It disables hosted PR comments and uploads the generated report through GitHub Code Scanning, so the workflow only needs `security-events: write`.
 

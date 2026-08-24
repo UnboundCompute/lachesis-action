@@ -53,6 +53,9 @@ inputs:
   exclude:
     description: "Optional space/comma-separated paths/globs; findings under these (e.g. a fixtures or vendor dir) are dropped."
     default: ""
+  baseline-sarif:
+    description: "Optional trusted SARIF report; matching rule/file/line findings are removed from the current report before posting or gating."
+    default: ""
   fail-on:
     description: "Fail the step if any finding is at this level or above: none | note | warning | error."
     default: "none"
@@ -91,6 +94,7 @@ runs:
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
         LACHESIS_CANDIDATE_REPORT: ${{ inputs.candidate-report }}
         LACHESIS_POST_COMMENTS: ${{ inputs.post-comments }}
+        LACHESIS_BASELINE_SARIF: ${{ inputs.baseline-sarif }}
         LACHESIS_SOURCE: ${{ inputs.source }}
         LACHESIS_REF: ${{ inputs.lachesis-ref }}
         ATROPOS_REF: ${{ inputs.atropos-ref }}
@@ -317,6 +321,14 @@ runs:
             echo "Use \`candidate-report: census\` to include catalog-backed obligation coverage in this summary."
           } >> "$GITHUB_STEP_SUMMARY"
         fi
+
+    - name: Remove findings present in baseline
+      if: ${{ inputs.baseline-sarif != '' }}
+      shell: bash
+      env:
+        LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
+        LACHESIS_BASELINE_SARIF: ${{ inputs.baseline-sarif }}
+      run: python3 "$GITHUB_ACTION_PATH/baseline_sarif.py" "$LACHESIS_SARIF_FILE" --baseline "$LACHESIS_BASELINE_SARIF"
 
     - name: Export candidate census
       id: export-candidates

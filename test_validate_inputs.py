@@ -42,6 +42,13 @@ class ValidateInputsTests(unittest.TestCase):
         )
         self.assertIn("post-comments must be one of: true, false", errors)
 
+    def test_rejects_missing_baseline(self):
+        errors = validate(
+            fail_on="none", buffer_pool_size="1", c_jobs="", analyze_args="",
+            sarif_file="report.sarif", source=".", baseline_sarif="missing.sarif",
+        )
+        self.assertTrue(any("baseline-sarif does not exist" in error for error in errors))
+
     def test_accepts_quoted_analyzer_args(self):
         self.assertEqual(
             [],

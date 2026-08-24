@@ -23,6 +23,7 @@ def validate(
     build_timeout: str = "1800",
     candidate_report: str = "none",
     post_comments: str = "true",
+    baseline_sarif: str = "",
 ) -> list[str]:
     errors: list[str] = []
 
@@ -32,6 +33,8 @@ def validate(
         errors.append("candidate-report must be one of: none, census")
     if post_comments not in {"true", "false"}:
         errors.append("post-comments must be one of: true, false")
+    if baseline_sarif and not Path(baseline_sarif).is_file():
+        errors.append(f"baseline-sarif does not exist: {baseline_sarif}")
 
     for label, value in (
         ("kuzu-buffer-pool-size", buffer_pool_size),
@@ -94,6 +97,7 @@ def main() -> int:
         build_timeout=os.environ.get("LACHESIS_BUILD_TIMEOUT", "1800"),
         candidate_report=os.environ.get("LACHESIS_CANDIDATE_REPORT", "none"),
         post_comments=os.environ.get("LACHESIS_POST_COMMENTS", "true"),
+        baseline_sarif=os.environ.get("LACHESIS_BASELINE_SARIF", ""),
     )
     if errors:
         for error in errors:
