@@ -67,6 +67,14 @@ inputs:
     description: "Audience requested for the OIDC token; must match the poster's configured audience."
     default: "lachesis-bot"
 
+outputs:
+  sarif-file:
+    description: "Path to the generated SARIF report."
+    value: ${{ steps.export-sarif.outputs.sarif-file }}
+  candidate-report-file:
+    description: "Path to the optional Atropos candidate census JSON, or empty when disabled."
+    value: ${{ steps.export-candidates.outputs.candidate-report-file }}
+
 runs:
   using: "composite"
   steps:
@@ -252,6 +260,7 @@ runs:
         PY
 
     - name: Export SARIF
+      id: export-sarif
       shell: bash
       env:
         # SARIF is one batch query; do not write a second graph-sized enriched cache
@@ -275,6 +284,7 @@ runs:
           --query-timeout "$LACHESIS_QUERY_TIMEOUT" \
           -o "$LACHESIS_SARIF_FILE" \
           "${ARGS[@]}"
+        echo "sarif-file=$LACHESIS_SARIF_FILE" >> "$GITHUB_OUTPUT"
 
     - name: Summarize scan contract
       shell: bash
@@ -299,12 +309,14 @@ runs:
         fi
 
     - name: Export candidate census
+      id: export-candidates
       if: ${{ inputs.candidate-report == 'census' }}
       shell: bash
       env:
         LACHESIS_CANDIDATE_FILE: ${{ runner.temp }}/lachesis-candidates.json
       run: |
         lachesis-candidates "$RUNNER_TEMP/lachesis.kuzu" --census > "$LACHESIS_CANDIDATE_FILE"
+        echo "candidate-report-file=$LACHESIS_CANDIDATE_FILE" >> "$GITHUB_OUTPUT"
         if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
           python3 - "$LACHESIS_CANDIDATE_FILE" >> "$GITHUB_STEP_SUMMARY" <<'PY'
         import json

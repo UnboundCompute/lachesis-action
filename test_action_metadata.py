@@ -30,6 +30,13 @@ class ActionMetadataTests(unittest.TestCase):
         self.assertIn('default: "none"', metadata)
         self.assertIn("inputs.candidate-report == 'census'", metadata)
 
+    def test_reports_are_exposed_as_action_outputs(self):
+        metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
+        self.assertIn("sarif-file:", metadata)
+        self.assertIn("candidate-report-file:", metadata)
+        self.assertIn("id: export-sarif", metadata)
+        self.assertIn("id: export-candidates", metadata)
+
 
 if __name__ == "__main__":
     unittest.main()

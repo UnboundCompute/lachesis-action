@@ -141,6 +141,27 @@ quoted analyzer arguments before cloning or installing anything. Invalid configu
 fails with exit code 2 and an actionable message, so a misconfigured workflow does not
 spend runner time on a partial scan.
 
+## Outputs
+
+Give the Action an `id` when another step needs the generated artifacts:
+
+```yaml
+- uses: UnboundCompute/lachesis-action@v1.0.5
+  id: lachesis
+  with:
+    source: "."
+
+- uses: github/codeql-action/upload-sarif@v3
+  if: ${{ always() && steps.lachesis.outputs.sarif-file != '' }}
+  with:
+    sarif_file: ${{ steps.lachesis.outputs.sarif-file }}
+```
+
+The `sarif-file` output is always set when SARIF export succeeds. The
+`candidate-report-file` output is set only when `candidate-report: census` is
+enabled. This keeps local files available for generic CI artifact storage and
+does not require the hosted poster.
+
 Dependency installation is noninteractive and uses bounded network behavior: Git aborts
 transfers below 1,000 bytes/second for 60 seconds, and pip uses a 60-second socket
 timeout. Credential prompts and pip's version-check request cannot leave a runner waiting.
