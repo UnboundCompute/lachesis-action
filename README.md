@@ -132,6 +132,7 @@ Languages: **Python, TypeScript/JavaScript, and C.**
 | `atropos-ref` | `v1.7.1` | Atropos release tag. Override with a reviewed immutable SHA when required. |
 | `fail-on` | `none` | Fail the check at `note` / `warning` / `error` and above. Other values fail configuration validation. |
 | `sarif-file` | `lachesis.sarif` | Output path for the intermediate SARIF report. |
+| `candidate-report` | `none` | Set to `census` to add an Atropos-backed obligation census to the Actions job summary. This is separate from the taint-path SARIF projection. |
 | `report-endpoint` | `` | Hosted Lachesis poster URL. Leave at the default unless you self-host the poster. |
 | `oidc-audience` | `lachesis-bot` | Audience requested for the OIDC token; must match the poster. |
 
@@ -178,6 +179,12 @@ rollback guidance are in [`RELEASING.md`](./RELEASING.md).
    compile reuse hint: Lachesis still validates file digests and output-affecting flags.
 4. Traces every source-to-sink path, classifies its guard status, and renders SARIF.
 5. Posts the findings on the PR as **Lachesis[bot]** via the hosted poster.
+
+The optional candidate census runs `lachesis-candidates` against the same graph and
+prints the machine-readable Atropos coverage report in the job summary. It is useful
+for C memory-safety and other catalog-backed obligations that are not yet part of the
+Action's taint `security-paths` SARIF projection. The Action never silently presents
+those candidates as PR findings.
 
 The analysis stays on your runner; only the findings are sent onward to be posted.
 
