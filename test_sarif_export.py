@@ -75,7 +75,26 @@ class SarifExportTests(unittest.TestCase):
         self.assertEqual("lachesis/unguarded-sink-differential", result["ruleId"])
         self.assertEqual("src/app.py", result["locations"][0]["physicalLocation"]["artifactLocation"]["uri"])
         self.assertEqual("path-1", result["partialFingerprints"]["lachesisPathId"])
+        self.assertEqual(64, len(result["partialFingerprints"]["lachesisFinding"]))
         self.assertEqual(2, len(result["codeFlows"][0]["threadFlows"][0]["locations"]))
+
+    def test_finding_fingerprint_survives_line_moves(self):
+        base = {
+            "kind": "source", "label": "request", "locator": {
+                "location": {"absolute_file": "/repo/src/app.py", "start_line": 8},
+            },
+        }
+        sink = {
+            "kind": "sink", "label": "query", "locator": {
+                "location": {"absolute_file": "/repo/src/app.py", "start_line": 12},
+            },
+        }
+        moved = json.loads(json.dumps([base, sink]))
+        moved[0]["locator"]["location"]["start_line"] = 80
+        moved[1]["locator"]["location"]["start_line"] = 120
+        first = sarif_export.finding_fingerprint("lachesis/unguarded-sink", "handler", "query", [base, sink], "/repo")
+        second = sarif_export.finding_fingerprint("lachesis/unguarded-sink", "handler", "query", moved, "/repo")
+        self.assertEqual(first, second)
 
     def test_build_sarif_dedupes_same_rule_file_and_line(self):
         # One sink reached by two distinct witness paths -> two path slices that

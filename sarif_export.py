@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import argparse
 import fnmatch
+import hashlib
 import json
 import os
 import shlex
@@ -135,6 +136,32 @@ def sarif_location(uri: Optional[str], line: Optional[int], message: Optional[st
     return out
 
 
+def finding_fingerprint(rule_id: str, handler: str, sinks: str,
+                        steps: List[Dict[str, Any]], repo_root: Optional[str]) -> str:
+    """Return a stable identity that does not change when line numbers move.
+
+    The sink line remains the SARIF anchor, but durable lifecycle systems need an
+    identity that survives harmless edits above the finding. Use normalized source
+    and sink paths plus labels and rule semantics; retain the engine path id as a
+    separate diagnostic fingerprint for exact witness tracing.
+    """
+    endpoints = []
+    for step in (steps[0], steps[-1]):
+        location = step_location(step)
+        endpoints.append({
+            "file": rel_uri(location["file"], repo_root),
+            "label": step.get("label") or "",
+            "kind": step.get("kind") or "",
+        })
+    payload = json.dumps({
+        "rule": rule_id,
+        "handler": handler,
+        "sinks": sinks,
+        "endpoints": endpoints,
+    }, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
 def build_result(
     path_query: Dict[str, Any],
     detail: Dict[str, Any],
@@ -193,7 +220,10 @@ def build_result(
         "level": rule["level"],
         "message": {"text": msg},
         "locations": [sarif_location(sink_uri, sink_line)],
-        "partialFingerprints": {"lachesisPathId": path_query["id"]},
+        "partialFingerprints": {
+            "lachesisFinding": finding_fingerprint(rule["id"], handler, sinks, steps, repo_root),
+            "lachesisPathId": path_query.get("id", ""),
+        },
     }
     if thread_locs:
         result["codeFlows"] = [{"threadFlows": [{"locations": thread_locs}]}]
