@@ -6,6 +6,7 @@ import argparse
 import hashlib
 import json
 import os
+import sys
 from collections import Counter
 from pathlib import Path
 from typing import Any
@@ -64,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--toolchain-fingerprint", required=True)
     parser.add_argument("--repository", default=os.environ.get("GITHUB_REPOSITORY", ""))
     parser.add_argument("--commit-sha", default=os.environ.get("GITHUB_SHA", ""))
-    args = parser.parse_args([] if argv is None else argv)
+    args = parser.parse_args(sys.argv[1:] if argv is None else argv)
     manifest = build_manifest(
         args.sarif, engine_sha=args.engine_sha, catalog_sha=args.catalog_sha,
         toolchain_fingerprint=args.toolchain_fingerprint,
