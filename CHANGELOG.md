@@ -4,6 +4,13 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+- Add opt-in `candidate-report: census` output for Atropos-backed obligation
+  coverage in the GitHub Actions job summary.
+- Expose generated SARIF and candidate-census paths as composite-action outputs so
+  callers can archive or upload artifacts through generic CI integrations.
+- Pin development defaults to the reviewed Lachesis `v0.1.7` and Atropos `v1.7.1`
+  releases.
+
 ## [1.0.5]
 
 - De-duplicate inline comments: when one sink is reached by several distinct
