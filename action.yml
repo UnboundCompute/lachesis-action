@@ -380,11 +380,16 @@ runs:
         GITHUB_REPOSITORY: ${{ github.repository }}
         GITHUB_SHA: ${{ github.sha }}
       run: |
+        evidence_args=()
+        if [ -f "$RUNNER_TEMP/lachesis-candidates.json" ]; then
+          evidence_args+=(--candidate-census "$RUNNER_TEMP/lachesis-candidates.json")
+        fi
         python3 "$GITHUB_ACTION_PATH/evidence_manifest.py" "$LACHESIS_SARIF_FILE" \
           --output "$LACHESIS_EVIDENCE_FILE" \
           --engine-sha "$LACHESIS_ENGINE_SHA" \
           --catalog-sha "$LACHESIS_CATALOG_SHA" \
-          --toolchain-fingerprint "$LACHESIS_TOOLCHAIN_FINGERPRINT"
+          --toolchain-fingerprint "$LACHESIS_TOOLCHAIN_FINGERPRINT" \
+          "${evidence_args[@]}"
         echo "evidence-file=$LACHESIS_EVIDENCE_FILE" >> "$GITHUB_OUTPUT"
 
     - name: Post PR comments (Lachesis[bot])

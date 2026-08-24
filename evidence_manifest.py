@@ -29,13 +29,14 @@ def build_manifest(
     toolchain_fingerprint: str,
     repository: str = "",
     commit_sha: str = "",
+    candidate_census_path: Path | None = None,
 ) -> dict[str, Any]:
     document = _read(sarif_path)
     results = [result for result in document["runs"][0]["results"] if isinstance(result, dict)]
     levels = Counter(str(result.get("level", "warning")) for result in results)
     suppressed = sum(bool(result.get("suppressions")) for result in results)
     run_properties = document["runs"][0].get("properties") or {}
-    return {
+    manifest = {
         "format": "lachesis-evidence",
         "schema_version": 1,
         "analysis_projection": "security-paths",
@@ -54,6 +55,16 @@ def build_manifest(
             "baseline_removed": int(run_properties.get("lachesis_baseline_removed", 0)),
         },
     }
+    if candidate_census_path is not None:
+        try:
+            json.loads(candidate_census_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise ValueError(f"cannot read candidate census: {error}") from error
+        manifest["candidate_census"] = {
+            "path": str(candidate_census_path),
+            "sha256": hashlib.sha256(candidate_census_path.read_bytes()).hexdigest(),
+        }
+    return manifest
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -65,11 +76,13 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--toolchain-fingerprint", required=True)
     parser.add_argument("--repository", default=os.environ.get("GITHUB_REPOSITORY", ""))
     parser.add_argument("--commit-sha", default=os.environ.get("GITHUB_SHA", ""))
+    parser.add_argument("--candidate-census", type=Path)
     args = parser.parse_args(sys.argv[1:] if argv is None else argv)
     manifest = build_manifest(
         args.sarif, engine_sha=args.engine_sha, catalog_sha=args.catalog_sha,
         toolchain_fingerprint=args.toolchain_fingerprint,
         repository=args.repository, commit_sha=args.commit_sha,
+        candidate_census_path=args.candidate_census,
     )
     args.output.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     print(f"lachesis: wrote evidence manifest to {args.output}")

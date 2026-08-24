@@ -27,6 +27,20 @@ class EvidenceManifestTests(unittest.TestCase):
             assert manifest["sarif"]["baseline_removed"] == 2
             assert len(manifest["sarif"]["sha256"]) == 64
 
+    def test_manifest_binds_optional_candidate_census_digest(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sarif = root / "report.sarif"
+            census = root / "census.json"
+            sarif.write_text(json.dumps({"runs": [{"results": []}]}))
+            census.write_text(json.dumps({"census": {"unbound": 3}}))
+            manifest = build_manifest(
+                sarif, engine_sha="e" * 40, catalog_sha="a" * 40,
+                toolchain_fingerprint="t" * 64, candidate_census_path=census,
+            )
+            assert manifest["candidate_census"]["path"] == str(census)
+            assert len(manifest["candidate_census"]["sha256"]) == 64
+
 
 if __name__ == "__main__":
     unittest.main()

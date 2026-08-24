@@ -171,7 +171,9 @@ The Action also exposes an `evidence-file` output containing a stable
 `lachesis-evidence` manifest. It records the engine/catalog SHAs, toolchain
 fingerprint, repository commit, SARIF SHA-256, result counts, suppression count,
 and baseline removals so a CI system can archive provenance without reinterpreting
-the SARIF document.
+the SARIF document. When `candidate-report: census` is enabled, the same manifest
+also records the candidate-census JSON digest. Candidate coverage remains a separate
+observation rather than a SARIF finding, but it is now bound to the run receipt.
 
 ### Baselines
 
