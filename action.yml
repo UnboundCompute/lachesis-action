@@ -194,6 +194,16 @@ runs:
         python3 "$SRC/tools/vendor_typescript.py"
         python3 "$SRC/tools/stage_native.py" --build
         python3 -m pip install "$SRC"
+        # The native C frontend loads libclang at runtime and targets the
+        # clang 17 API. Rather than gamble on whichever libclang a runner happens
+        # to ship (an older one makes a 17-only entry point a null call and the
+        # frontend segfaults), pull a pinned, prebuilt libclang from PyPI and
+        # point clang-sys straight at it. Deterministic and cross-platform;
+        # LIBCLANG_PATH carries into the graph-build step via GITHUB_ENV.
+        python3 -m pip install "libclang~=17.0"
+        LIBCLANG_DIR="$(python3 -c 'import clang, os; print(os.path.join(os.path.dirname(clang.__file__), "native"))')"
+        echo "LIBCLANG_PATH=$LIBCLANG_DIR" >> "$GITHUB_ENV"
+        echo "Pinned libclang for the native C frontend: $LIBCLANG_DIR"
 
     - name: Install Atropos catalog
       id: install-atropos

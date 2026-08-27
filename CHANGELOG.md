@@ -18,6 +18,11 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   `--prune` default from `analyze-args`: 0.3.0's query no longer re-enriches in
   process, and `lachesis build` prunes by default (pass `--no-prune` to retain
   lexical records).
+- Pull a pinned, prebuilt `libclang` (clang 17) from PyPI during install and point
+  the engine at it with `LIBCLANG_PATH`. The native C frontend loads libclang at
+  runtime and targets the clang 17 API; relying on a runner's ambient libclang risks
+  loading an older one, where a 17-only entry point becomes a null call and the
+  frontend segfaults. Pinning makes the C frontend deterministic across runners.
 - Pin development defaults to the reviewed Lachesis `v0.3.0` release.
 
 ## [1.1.0]
