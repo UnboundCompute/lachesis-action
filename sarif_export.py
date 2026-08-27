@@ -86,8 +86,17 @@ def run_query(query_cmd: List[str], graph: str, *args: str,
               timeout: int = DEFAULT_QUERY_TIMEOUT_SECONDS) -> Dict[str, Any]:
     completed = subprocess.run(
         [*query_cmd, "--format", "json", graph, *args],
-        text=True, capture_output=True, check=True, timeout=timeout,
+        text=True, capture_output=True, timeout=timeout,
     )
+    if completed.returncode != 0:
+        # Surface the engine's own diagnostics instead of a bare exit code: the
+        # query runs in a child process, so without this its traceback never
+        # reaches the Action log and every failure looks identical.
+        detail = (completed.stderr or completed.stdout or "").strip()
+        raise RuntimeError(
+            f"lachesis query {' '.join(args)!r} exited {completed.returncode}"
+            + (f"\n{detail}" if detail else "")
+        )
     return json.loads(completed.stdout)
 
 
@@ -269,8 +278,9 @@ def collect_paths(query_cmd: List[str], graph: str,
                  "detail": e.get("detail") or {}}
                 for e in entries
             ]
-    except (subprocess.CalledProcessError, json.JSONDecodeError):
-        pass  # older engine: fall back below
+    except (RuntimeError, subprocess.CalledProcessError, json.JSONDecodeError):
+        pass  # older engine (no batch command): fall back below. A genuinely
+        # broken engine re-fails on the `overview` call below, which surfaces.
     overview = run_query(query_cmd, graph, "overview", timeout=timeout)
     security = (overview.get("manifest") or {}).get("security") or {}
     return [
