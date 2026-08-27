@@ -6,7 +6,7 @@ class ActionMetadataTests(unittest.TestCase):
     def test_dependency_defaults_are_reviewed_releases(self):
         metadata = Path(__file__).with_name("action.yml").read_text(encoding="utf-8")
         self.assertIn('lachesis-ref:\n    description:', metadata)
-        self.assertIn('    default: "v0.2.0"', metadata)
+        self.assertIn('    default: "v0.3.0"', metadata)
         self.assertIn('    default: "v1.8.0"', metadata)
 
     def test_dependency_checkouts_are_noninteractive(self):
