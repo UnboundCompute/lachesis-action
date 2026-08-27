@@ -23,6 +23,14 @@ All notable changes to the Lachesis GitHub Action are recorded here.
   runtime and targets the clang 17 API; relying on a runner's ambient libclang risks
   loading an older one, where a 17-only entry point becomes a null call and the
   frontend segfaults. Pinning makes the C frontend deterministic across runners.
+- Run the graph query from the graph's own directory. `python -m lachesis.cli.query`
+  prepends the working directory to `sys.path`, so scanning a checkout that itself
+  contains a `lachesis/` package (the engine dogfooding its own source) imported the
+  un-built source tree instead of the installed engine and reported its staged native
+  kernel as missing. Querying from the graph directory resolves the installed engine.
+- Surface the query engine's own stderr when a query fails, instead of a bare exit
+  code, so an engine-side error (missing sidecar, load failure) is diagnosable from
+  the Action log.
 - Pin development defaults to the reviewed Lachesis `v0.3.0` release.
 
 ## [1.1.0]

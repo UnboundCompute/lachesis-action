@@ -84,9 +84,17 @@ def normalize_uri(path: str) -> str:
 
 def run_query(query_cmd: List[str], graph: str, *args: str,
               timeout: int = DEFAULT_QUERY_TIMEOUT_SECONDS) -> Dict[str, Any]:
+    # Run from the graph's own directory, not the caller's. `python -m` prepends
+    # the working directory to sys.path, so invoking the query from a checkout that
+    # itself contains a `lachesis/` package (e.g. scanning the engine's own source)
+    # would import that un-built source tree instead of the pip-installed engine,
+    # and its staged native kernel would appear missing. The graph directory holds
+    # no such package, so the installed engine resolves. Paths are absolute, so the
+    # cwd change is otherwise inert.
+    graph_dir = os.path.dirname(os.path.abspath(graph)) or None
     completed = subprocess.run(
         [*query_cmd, "--format", "json", graph, *args],
-        text=True, capture_output=True, timeout=timeout,
+        text=True, capture_output=True, timeout=timeout, cwd=graph_dir,
     )
     if completed.returncode != 0:
         # Surface the engine's own diagnostics instead of a bare exit code: the
