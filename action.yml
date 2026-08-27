@@ -16,7 +16,7 @@ inputs:
     default: "https://github.com/UnboundCompute/lachesis"
   lachesis-ref:
     description: "Branch, tag, or SHA of Lachesis to install."
-    default: "v0.2.0"
+    default: "v0.3.0"
   atropos-repo:
     description: "Git URL for the Atropos taint-model catalog."
     default: "https://github.com/UnboundCompute/atropos"
@@ -24,8 +24,8 @@ inputs:
     description: "Branch, tag, or SHA of Atropos to use. Pin a tag or SHA for reproducibility."
     default: "v1.8.0"
   analyze-args:
-    description: "Extra flags passed to lachesis-analyze. Kept light by default."
-    default: "--prune --incremental"
+    description: "Extra flags passed to `lachesis build`. Kept light by default."
+    default: "--incremental"
   c-jobs:
     description: "Optional Clang frontend concurrency override; empty uses the adaptive engine default."
     default: ""
@@ -156,7 +156,9 @@ runs:
       # Install the selected engine ref from source so production workflows can pin
       # an exact commit and development workflows can test unreleased changes. The
       # TypeScript compiler is a build artifact absent from the repo, so vendor it
-      # FIRST (a pure-Python fetch, no npm), then it gets packaged into the install.
+      # FIRST (a pure-Python fetch, no npm); then build and stage the native Rust
+      # kernel into the package tree (the query dataflow tier is native-only from
+      # Lachesis 0.3.0 on) so both get packaged into the install.
       shell: bash
       env:
         LACHESIS_REPO_URL: ${{ inputs.lachesis-repo }}
@@ -190,6 +192,7 @@ runs:
         echo "engine_sha=$(git -C "$SRC" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
         python3 -m pip install --upgrade pip
         python3 "$SRC/tools/vendor_typescript.py"
+        python3 "$SRC/tools/stage_native.py" --build
         python3 -m pip install "$SRC"
 
     - name: Install Atropos catalog
@@ -254,7 +257,8 @@ runs:
         import subprocess
 
         args = [
-            "lachesis-analyze",
+            "lachesis",
+            "build",
             os.environ["LACHESIS_SOURCE"],
             os.path.join(os.environ["RUNNER_TEMP"], "lachesis.kuzu"),
             *shlex.split(os.environ["LACHESIS_ANALYZE_ARGS"]),
@@ -282,9 +286,10 @@ runs:
       id: export-sarif
       shell: bash
       env:
-        # SARIF is one batch query; do not write a second graph-sized enriched cache
-        # during the cold Action invocation. Local query users keep persistent caching.
-        LACHESIS_QUERY_EPHEMERAL_ENRICH: "1"
+        # SARIF is one batch query. From Lachesis 0.3.0 the query materializes the
+        # dataflow tier from the native binary sidecar produced by `lachesis build`;
+        # there is no in-process Python re-enrichment to bound, so no cache-control
+        # env is needed here.
         LACHESIS_CHANGED_FILES: ${{ inputs.changed-files }}
         LACHESIS_EXCLUDE: ${{ inputs.exclude }}
         LACHESIS_SARIF_FILE: ${{ inputs.sarif-file }}
@@ -349,7 +354,7 @@ runs:
       env:
         LACHESIS_CANDIDATE_FILE: ${{ runner.temp }}/lachesis-candidates.json
       run: |
-        lachesis-candidates "$RUNNER_TEMP/lachesis.kuzu" --census > "$LACHESIS_CANDIDATE_FILE"
+        lachesis candidates "$RUNNER_TEMP/lachesis.kuzu" --census > "$LACHESIS_CANDIDATE_FILE"
         echo "candidate-report-file=$LACHESIS_CANDIDATE_FILE" >> "$GITHUB_OUTPUT"
         if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
           python3 - "$LACHESIS_CANDIDATE_FILE" >> "$GITHUB_STEP_SUMMARY" <<'PY'

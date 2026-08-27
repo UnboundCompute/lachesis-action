@@ -4,6 +4,22 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+## [1.2.0]
+
+- Track the unified Lachesis 0.3.0 command line: the graph build now runs
+  `lachesis build` and the census runs `lachesis candidates`, replacing the
+  per-verb `lachesis-analyze` / `lachesis-candidates` console scripts that 0.3.0
+  collapsed into subcommands of a single `lachesis` entrypoint.
+- Build and stage the native analysis kernel during engine install. From Lachesis
+  0.3.0 the query dataflow tier is materialized from a native binary sidecar with no
+  in-process Python enrichment fallback, so the kernel must be present in the
+  installed package; the install step now runs `tools/stage_native.py --build`.
+- Drop the inert `LACHESIS_QUERY_EPHEMERAL_ENRICH` export from the SARIF step and the
+  `--prune` default from `analyze-args`: 0.3.0's query no longer re-enriches in
+  process, and `lachesis build` prunes by default (pass `--no-prune` to retain
+  lexical records).
+- Pin development defaults to the reviewed Lachesis `v0.3.0` release.
+
 ## [1.1.0]
 
 - Add a line-move-stable `lachesisFinding` SARIF fingerprint alongside the exact
