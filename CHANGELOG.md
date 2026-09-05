@@ -4,6 +4,17 @@ All notable changes to the Lachesis GitHub Action are recorded here.
 
 ## Unreleased
 
+## [1.2.1]
+
+- Advance the moving engine defaults to the current releases: `lachesis-ref`
+  `v0.3.0` -> `v0.5.0` and `atropos-ref` `v1.8.0` -> `v1.10.0`. Lachesis 0.5.0
+  brings federated sharding and the native temporal lifetime pipeline
+  (double-free / use-after-free confirmation); Atropos 1.10.0 grows the catalog
+  to ~1.6k verified facts across C/Python/JS/TS. No Action behavior changes —
+  these are the development-convenience defaults only; production workflows
+  should still pin `lachesis-ref` / `atropos-ref` to a reviewed release tag per
+  RELEASING.md.
+
 ## [1.2.0]
 
 - Track the unified Lachesis 0.3.0 command line: the graph build now runs
