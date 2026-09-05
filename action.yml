@@ -238,7 +238,7 @@ runs:
         echo "catalog_sha=$(git -C "$CATALOG" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
     - name: Restore frontend cache
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           graph_out/frontends
